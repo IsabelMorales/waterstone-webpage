@@ -9,7 +9,6 @@ interface FooterLink {
 const footerLinks = {
   main: [
     { href: '/', label: 'Home' },
-    { href: '/overview', label: 'Overview' },
     { href: '/services', label: 'Services' },
     { href: '/properties', label: 'Properties' },
     { href: '/listings', label: 'Listings' },
