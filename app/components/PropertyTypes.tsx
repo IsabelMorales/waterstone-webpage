@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface PropertyType {
   id: string;
   title: string;
@@ -102,42 +104,57 @@ export default function PropertyTypes() {
           {propertyTypes.map((propertyType) => (
             <div
               key={propertyType.id}
-              className="bg-white border-2 border-gray-200 rounded-lg p-6 md:p-8 hover:border-brand-primary hover:shadow-lg transition-all duration-300 group"
+              className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-brand-primary hover:shadow-lg transition-all duration-300 group"
             >
-              {/* Title */}
-              <h3 className="text-xl md:text-2xl font-semibold text-brand-dark mb-4 group-hover:text-brand-primary transition-colors duration-300">
-                {propertyType.title}
-              </h3>
+              {/* Image */}
+              <div className="relative w-full h-48 overflow-hidden bg-gray-100">
+                <Image
+                  src="/hero.jpeg"
+                  alt={`${propertyType.title} - Property Management Services`}
+                  width={400}
+                  height={192}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  priority={propertyType.id === 'multifamily'}
+                />
+              </div>
 
-              {/* Description */}
-              <p className="text-gray-600 leading-relaxed">
-                {propertyType.description}
-              </p>
+              {/* Content */}
+              <div className="p-6 md:p-8">
+                {/* Title */}
+                <h3 className="text-xl md:text-2xl font-semibold text-brand-dark mb-4 group-hover:text-brand-primary transition-colors duration-300">
+                  {propertyType.title}
+                </h3>
 
-              {/* Special section for Commercial types */}
-              {propertyType.id === 'commercial' && (
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <p className="text-sm font-semibold text-brand-dark mb-4">
-                    The following are types of COMMERCIAL properties that we
-                    specialize in:
-                  </p>
-                  <ul className="space-y-3">
-                    {commercialSubTypes.map((subType) => (
-                      <li key={subType.id} className="flex items-start">
-                        <span className="text-brand-primary mr-2 font-bold">
-                          {commercialSubTypes.indexOf(subType) + 1}.
-                        </span>
-                        <div>
-                          <span className="font-semibold text-brand-dark">
-                            {subType.title}
+                {/* Description */}
+                <p className="text-gray-600 leading-relaxed">
+                  {propertyType.description}
+                </p>
+
+                {/* Special section for Commercial types */}
+                {propertyType.id === 'commercial' && (
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <p className="text-sm font-semibold text-brand-dark mb-4">
+                      The following are types of COMMERCIAL properties that we
+                      specialize in:
+                    </p>
+                    <ul className="space-y-3">
+                      {commercialSubTypes.map((subType) => (
+                        <li key={subType.id} className="flex items-start">
+                          <span className="text-brand-primary mr-2 font-bold">
+                            {commercialSubTypes.indexOf(subType) + 1}.
                           </span>
-                          <span className="text-gray-600"> – {subType.description}</span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                          <div>
+                            <span className="font-semibold text-brand-dark">
+                              {subType.title}
+                            </span>
+                            <span className="text-gray-600"> – {subType.description}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>

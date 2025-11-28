@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface Responsibility {
   number: number;
   title: string;
@@ -57,24 +59,38 @@ export default function ManagementResponsibilities() {
           {responsibilities.map((responsibility) => (
             <div
               key={responsibility.number}
-              className="bg-white border-2 border-gray-200 rounded-lg p-6 md:p-8 hover:border-brand-primary hover:shadow-lg transition-all duration-300 group"
+              className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-brand-primary hover:shadow-lg transition-all duration-300 group"
             >
-              {/* Number Badge */}
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-lg group-hover:bg-brand-dark transition-colors duration-300">
-                  {responsibility.number}
-                </div>
+              {/* Image */}
+              <div className="relative w-full h-48 overflow-hidden">
+                <Image
+                  src="/hero.jpeg"
+                  alt={`${responsibility.title} - Property Management Services`}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
               </div>
 
-              {/* Title */}
-              <h3 className="text-xl md:text-2xl font-semibold text-brand-dark mb-4 group-hover:text-brand-primary transition-colors duration-300">
-                {responsibility.title}
-              </h3>
+              {/* Content */}
+              <div className="p-6 md:p-8">
+                {/* Number Badge */}
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-lg group-hover:bg-brand-dark transition-colors duration-300">
+                    {responsibility.number}
+                  </div>
+                </div>
 
-              {/* Description */}
-              <p className="text-gray-600 leading-relaxed">
-                {responsibility.description}
-              </p>
+                {/* Title */}
+                <h3 className="text-xl md:text-2xl font-semibold text-brand-dark mb-4 group-hover:text-brand-primary transition-colors duration-300">
+                  {responsibility.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-gray-600 leading-relaxed">
+                  {responsibility.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
