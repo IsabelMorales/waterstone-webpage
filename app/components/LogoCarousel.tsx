@@ -25,7 +25,7 @@ export default function LogoCarousel() {
   const duplicatedLogos = [...logos, ...logos];
 
   return (
-    <section className="w-full bg-gray-50 py-11 md:py-4 overflow-hidden">
+    <section className="w-full bg-gray-50 overflow-hidden">
       <div className="relative">
         {/* Gradient overlays para efecto fade en los bordes */}
         <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />

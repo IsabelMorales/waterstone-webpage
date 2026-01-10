@@ -25,7 +25,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-brand-dark text-white">
+    <footer className="w-full bg-brand-dark text-[var(--color-almost-white)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
           {/* Logo and Description */}
@@ -48,7 +48,7 @@ export default function Footer() {
 
           {/* Navigation Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">
+            <h3 className="text-lg font-semibold mb-4 text-[var(--color-almost-white)]">
               Navigation
             </h3>
             <ul className="space-y-2">
@@ -56,7 +56,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
+                    className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-sm"
                   >
                     {link.label}
                   </Link>
@@ -67,7 +67,7 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">Services</h3>
+            <h3 className="text-lg font-semibold mb-4 text-[var(--color-almost-white)]">Services</h3>
             <ul className="space-y-2">
               <li>
                 <span className="text-gray-300 text-sm">
@@ -94,12 +94,12 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">Contact</h3>
+            <h3 className="text-lg font-semibold mb-4 text-[var(--color-almost-white)]">Contact</h3>
             <ul className="space-y-3">
               <li>
                 <a
                   href="mailto:info@waterstone.com"
-                  className="text-gray-300 hover:text-white transition-colors duration-200 text-sm block"
+                  className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-sm block"
                 >
                   info@waterstone.com
                 </a>
@@ -107,7 +107,7 @@ export default function Footer() {
               <li>
                 <a
                   href="tel:+1234567890"
-                  className="text-gray-300 hover:text-white transition-colors duration-200 text-sm block"
+                  className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-sm block"
                 >
                   +1 (234) 567-890
                 </a>
@@ -117,7 +117,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-white/20 pt-8">
+          <div className="border-t border-[var(--color-almost-white)]/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright */}
             <p className="text-gray-400 text-sm text-center md:text-left">
@@ -130,7 +130,7 @@ export default function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-gray-400 hover:text-white transition-colors duration-200 text-sm"
+                  className="text-gray-400 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-sm"
                 >
                   {link.label}
                 </Link>

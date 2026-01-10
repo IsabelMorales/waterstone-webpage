@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { MobileMenuClient } from './MobileMenuClient';
+import WaterstoneGroupDropdown from './WaterstoneGroupDropdown';
 
 export default function Header() {
   const menuItems = [
-    { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
     { href: '/properties', label: 'Properties' },
     { href: '/listings', label: 'Listings' },
@@ -13,14 +13,14 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-50 w-full bg-almost-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link
               href="/"
-              className="flex items-center focus:outline-none focus:ring-2 focus:ring-brand-primary rounded-lg"
+              className="flex items-center outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg"
               aria-label="Home"
             >
               <Image
@@ -41,12 +41,16 @@ export default function Header() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="px-4 py-2 text-sm font-semibold text-brand-dark hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    className="px-4 py-2 text-sm font-semibold text-brand-dark hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                   >
                     {item.label}
                   </Link>
                 </li>
               ))}
+              {/* Waterstone Group Dropdown */}
+              <li>
+                <WaterstoneGroupDropdown />
+              </li>
             </ul>
           </nav>
 
@@ -54,7 +58,7 @@ export default function Header() {
           <div className="hidden lg:flex lg:items-center lg:space-x-4">
             <Link
               href="/contact-us"
-              className="px-6 py-2.5 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-dark transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2"
+              className="px-6 py-2.5 bg-brand-primary text-almost-white text-sm font-medium rounded-lg hover:bg-brand-dark transition-all shadow-md hover:shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             >
               TENANT LOGIN
             </Link>

@@ -1,9 +1,11 @@
 import Image from 'next/image';
+import AnimatedOnScroll from './AnimatedOnScroll';
 
 interface PropertyType {
   id: string;
   title: string;
   description: string;
+  image: string;
 }
 
 interface CommercialSubType {
@@ -18,30 +20,35 @@ const propertyTypes: PropertyType[] = [
     title: 'Multi family buildings',
     description:
       'Multi-story detached buildings, where each floor is a separate apartment or unit',
+    image: '/image5.jpg',
   },
   {
     id: 'condo-coop',
     title: 'Condo/coop',
     description:
       'Building or complex, similar to apartments, owned by individuals. Common grounds and common areas within the complex are owned and shared jointly.',
+    image: '/building-1.jpg',
   },
   {
     id: 'mitchel-lama',
     title: 'Mitchel Lama buildings',
     description:
       'The Mitchell-Lama Housing Program is a non-subsidy governmental housing guarantee in the state of New York, established for development and building of affordable housing, both rental and co-operatively owned, for middle-income residents.',
+    image: '/manhattan-1.jpg',
   },
   {
     id: 'mixed-use',
     title: 'Mixed use',
     description:
       'A development, or even a single building, that blends a combination of residential, commercial, cultural, institutional, or industrial uses.',
+    image: '/building-4.jpg',
   },
   {
     id: 'commercial',
     title: 'Commercial real estate',
     description:
       'Buildings or land intended to generate a profit, either from capital gain or rental income.',
+    image: '/image7.jpg',
   },
 ];
 
@@ -86,30 +93,36 @@ const commercialSubTypes: CommercialSubType[] = [
 
 export default function PropertyTypes() {
   return (
-    <section className="w-full bg-gray-50 py-14 md:py-12">
+    <section className="w-full py-14 md:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-brand-dark mb-4">
-            Property Types
-          </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-            Following is a list of the 6 major types of properties we specialize
-            in:
-          </p>
-        </div>
+        <AnimatedOnScroll>
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-almost-white)] mb-4">
+              Property Types
+            </h2>
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
+              Following is a list of the 6 major types of properties we specialize
+              in:
+            </p>
+          </div>
+        </AnimatedOnScroll>
 
         {/* Main Property Types Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12">
-          {propertyTypes.map((propertyType) => (
-            <div
-              key={propertyType.id}
-              className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-brand-primary hover:shadow-lg transition-all duration-300 group"
-            >
+          {propertyTypes.map((propertyType, index) => {
+            // Delays reducidos: más rápido para las últimas cards
+            const delays = [0, 50, 100, 130, 150];
+            return (
+              <AnimatedOnScroll
+                key={propertyType.id}
+                delay={delays[index] || 150}
+              >
+              <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-brand-primary hover:shadow-lg transition-all duration-300 group">
               {/* Image */}
               <div className="relative w-full h-48 overflow-hidden bg-gray-100">
                 <Image
-                  src="/hero.jpeg"
+                  src={propertyType.image}
                   alt={`${propertyType.title} - Property Management Services`}
                   width={400}
                   height={192}
@@ -155,8 +168,10 @@ export default function PropertyTypes() {
                   </div>
                 )}
               </div>
-            </div>
-          ))}
+              </div>
+              </AnimatedOnScroll>
+            );
+          })}
         </div>
       </div>
     </section>

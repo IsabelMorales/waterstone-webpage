@@ -6,6 +6,10 @@
   /* Waterstone Brand Colors */
   --color-brand-primary: #006089;
   --color-brand-dark: #003041;
+  /* Almost white - very light gray for reduced eye strain */
+  --color-almost-white: #F9FAFB;
+  /* Almost black - very dark gray instead of pure black */
+  --color-almost-black: #1a1a1a;
 }
 
 @theme inline {
@@ -16,6 +20,10 @@
   /* Waterstone Brand Colors for Tailwind */
   --color-brand-primary: #006089;
   --color-brand-dark: #003041;
+  /* Almost white for Tailwind */
+  --color-almost-white: #F9FAFB;
+  /* Almost black for Tailwind */
+  --color-almost-black: #1a1a1a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -49,4 +57,17 @@ body {
 
 .logo-scroll-animation:hover {
   animation-play-state: paused;
+}
+
+/* Custom utility classes for consistent colors */
+.bg-almost-white {
+  background-color: var(--color-almost-white);
+}
+
+.bg-almost-black {
+  background-color: var(--color-almost-black);
+}
+
+.text-almost-white {
+  color: var(--color-almost-white);
 }
