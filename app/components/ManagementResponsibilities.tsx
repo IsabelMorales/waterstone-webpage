@@ -66,12 +66,9 @@ export default function ManagementResponsibilities() {
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {responsibilities.map((responsibility) => {
-            // Delays reducidos: sin delay en la primera, incrementos pequeños
-            const delays = [0, 50, 100, 130, 150];
             return (
               <AnimatedOnScroll
                 key={responsibility.number}
-                delay={delays[responsibility.number - 1] || 150}
               >
               <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-brand-primary hover:shadow-lg transition-all duration-300 group">
               {/* Image */}

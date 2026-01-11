@@ -53,21 +53,24 @@ export default function AnimatedOnScroll({
       // Solo animar si:
       // 1. El elemento está en viewport
       // 2. Estamos haciendo scroll hacia abajo
-      // 3. El elemento está entrando desde arriba (top del viewport)
-      // 4. No ha sido animado todavía
+      // 3. No ha sido animado todavía
       if (
         isInViewport &&
         scrollingDown &&
-        rect.top < window.innerHeight * 0.8 &&
         !hasBeenAnimated.current
       ) {
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
         }
-        timeoutRef.current = setTimeout(() => {
+        if (delay === 0) {
           setIsVisible(true);
           hasBeenAnimated.current = true;
-        }, delay);
+        } else {
+          timeoutRef.current = setTimeout(() => {
+            setIsVisible(true);
+            hasBeenAnimated.current = true;
+          }, delay);
+        }
       }
     };
 
@@ -98,27 +101,30 @@ export default function AnimatedOnScroll({
           // Solo animar si:
           // 1. Entra en viewport
           // 2. Estamos haciendo scroll hacia abajo
-          // 3. El elemento está entrando desde arriba
-          // 4. No ha sido animado todavía
+          // 3. No ha sido animado todavía
           if (
             entry.isIntersecting &&
             scrollingDown &&
-            rect.top < window.innerHeight * 0.8 &&
             !hasBeenAnimated.current
           ) {
             if (timeoutRef.current) {
               clearTimeout(timeoutRef.current);
             }
-            timeoutRef.current = setTimeout(() => {
+            if (delay === 0) {
               setIsVisible(true);
               hasBeenAnimated.current = true;
-            }, delay);
+            } else {
+              timeoutRef.current = setTimeout(() => {
+                setIsVisible(true);
+                hasBeenAnimated.current = true;
+              }, delay);
+            }
           }
         });
       },
       {
         threshold: 0.1,
-        rootMargin: '0px 0px -20% 0px',
+        rootMargin: '0px',
       }
     );
 

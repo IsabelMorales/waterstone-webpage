@@ -112,7 +112,7 @@ export default function PropertyTypes() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12">
           {propertyTypes.map((propertyType, index) => {
             // Delays reducidos: más rápido para las últimas cards
-            const delays = [0, 50, 100, 130, 150];
+            const delays = [0, 0, 0, 0, 0];
             return (
               <AnimatedOnScroll
                 key={propertyType.id}
