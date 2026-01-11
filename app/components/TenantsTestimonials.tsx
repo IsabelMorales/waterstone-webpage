@@ -92,10 +92,9 @@ export default function TenantsTestimonials() {
                         slideIndex * testimonialsPerSlide,
                         slideIndex * testimonialsPerSlide + testimonialsPerSlide
                       )
-                      .map((testimonial, cardIndex) => (
+                      .map((testimonial) => (
                         <AnimatedOnScroll
                           key={testimonial.id}
-                          delay={cardIndex * 20}
                         >
                           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 md:p-7 max-w-md mx-auto w-full h-full flex flex-col">
                             {/* Rating Stars */}
