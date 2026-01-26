@@ -24,15 +24,15 @@ export default function Hero() {
           <div className="max-w-4xl mx-auto text-center">
             {/* Main Heading */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[var(--color-almost-white)] mb-6 leading-tight">
-              Lorem ipsum dolor sit amet
+             Real Estate <br/> Realized Opportunities
             </h1>
 
             {/* Description */}
             <p className="text-lg sm:text-xl md:text-2xl text-[var(--color-almost-white)]/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Lorem ipsum dolor sit amet consectetur adipiscing elit laoreet
-              aenean a id sodales taciti augue libero, ut eleifend gravida
-              quisque fermentum integer platea etiam condimentum tristique
-              sagittis habitant dapibus.
+              In one of the toughest real estate markets in the world, the biggest 
+              players are not necessarily the best ones; definitely not for everyone. 
+              <br/> While there are some players in New York that are bigger than us, 
+              we may still be the management company that is just the right size for <strong>YOU</strong>.
             </p>
 
             {/* CTA Button */}

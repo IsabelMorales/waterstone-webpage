@@ -115,57 +115,54 @@ export default function PropertyTypes() {
               <AnimatedOnScroll
                 key={propertyType.id}
               >
-              <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-brand-primary hover:shadow-lg transition-all duration-300 group">
-              {/* Image */}
-              <div className="relative w-full h-48 overflow-hidden bg-gray-100">
-                <Image
-                  src={propertyType.image}
-                  alt={`${propertyType.title} - Property Management Services`}
-                  width={400}
-                  height={192}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  priority={propertyType.id === 'multifamily'}
-                />
-              </div>
-
-              {/* Content */}
-              <div className="p-6 md:p-8">
-                {/* Title */}
-                <h3 className="text-xl md:text-2xl font-semibold text-brand-dark mb-4 group-hover:text-brand-primary transition-colors duration-300">
-                  {propertyType.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-gray-600 leading-relaxed">
-                  {propertyType.description}
-                </p>
-
-                {/* Special section for Commercial types */}
-                {propertyType.id === 'commercial' && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <p className="text-sm font-semibold text-brand-dark mb-4">
-                      The following are types of COMMERCIAL properties that we
-                      specialize in:
-                    </p>
-                    <ul className="space-y-3">
-                      {commercialSubTypes.map((subType) => (
-                        <li key={subType.id} className="flex items-start">
-                          <span className="text-brand-primary mr-2 font-bold">
-                            {commercialSubTypes.indexOf(subType) + 1}.
-                          </span>
-                          <div>
-                            <span className="font-semibold text-brand-dark">
-                              {subType.title}
-                            </span>
-                            <span className="text-gray-600"> – {subType.description}</span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                <div className="group">
+                  {/* Image */}
+                  <div className="relative w-full h-48 md:h-64 overflow-hidden rounded-lg mb-4">
+                    <Image
+                      src={propertyType.image}
+                      alt={`${propertyType.title} - Property Management Services`}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority={propertyType.id === 'multifamily'}
+                    />
                   </div>
-                )}
-              </div>
-              </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl md:text-2xl font-semibold text-[var(--color-almost-white)] mb-3 transition-colors duration-300">
+                    {propertyType.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-300 leading-relaxed mb-4">
+                    {propertyType.description}
+                  </p>
+
+                  {/* Special section for Commercial types */}
+                  {propertyType.id === 'commercial' && (
+                    <div className="mt-6 pt-6 border-t border-gray-600">
+                      <p className="text-sm font-semibold text-[var(--color-almost-white)] mb-4">
+                        The following are types of COMMERCIAL properties that we
+                        specialize in:
+                      </p>
+                      <ul className="space-y-3">
+                        {commercialSubTypes.map((subType) => (
+                          <li key={subType.id} className="flex items-start">
+                            <div className="w-8 h-8 rounded-full bg-brand-accent text-[var(--color-almost-white)] flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0">
+                              {commercialSubTypes.indexOf(subType) + 1}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-[var(--color-almost-white)]">
+                                {subType.title}
+                              </span>
+                              <span className="text-gray-300"> – {subType.description}</span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </AnimatedOnScroll>
             );
           })}

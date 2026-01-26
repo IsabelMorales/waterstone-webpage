@@ -63,45 +63,42 @@ export default function ManagementResponsibilities() {
           </div>
         </AnimatedOnScroll>
 
-        {/* Cards Grid */}
+        {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {responsibilities.map((responsibility) => {
             return (
               <AnimatedOnScroll
                 key={responsibility.number}
               >
-              <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-brand-primary hover:shadow-lg transition-all duration-300 group">
-              {/* Image */}
-              <div className="relative w-full h-48 overflow-hidden">
-                <Image
-                  src={responsibility.image}
-                  alt={`${responsibility.title} - Property Management Services`}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              </div>
-
-              {/* Content */}
-              <div className="p-6 md:p-8">
-                {/* Number Badge */}
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 rounded-full bg-brand-primary text-[var(--color-almost-white)] flex items-center justify-center font-bold text-lg group-hover:bg-brand-dark transition-colors duration-300">
-                    {responsibility.number}
+                <div className="group">
+                  {/* Image */}
+                  <div className="relative w-full h-48 md:h-64 overflow-hidden rounded-lg mb-4">
+                    <Image
+                      src={responsibility.image}
+                      alt={`${responsibility.title} - Property Management Services`}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
                   </div>
+
+                  {/* Number Badge */}
+                  <div className="flex items-center mb-3">
+                    <div className="w-10 h-10 rounded-full bg-brand-accent text-[var(--color-almost-white)] flex items-center justify-center font-bold text-lg transition-colors duration-300">
+                      {responsibility.number}
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl md:text-2xl font-semibold text-[var(--color-almost-white)] mb-3 transition-colors duration-300">
+                    {responsibility.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-300 leading-relaxed">
+                    {responsibility.description}
+                  </p>
                 </div>
-
-                {/* Title */}
-                <h3 className="text-xl md:text-2xl font-semibold text-brand-dark mb-4 group-hover:text-brand-primary transition-colors duration-300">
-                  {responsibility.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-gray-600 leading-relaxed">
-                  {responsibility.description}
-                </p>
-              </div>
-              </div>
               </AnimatedOnScroll>
             );
           })}

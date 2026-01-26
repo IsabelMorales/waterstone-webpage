@@ -6,6 +6,7 @@
   /* Waterstone Brand Colors */
   --color-brand-primary: #006089;
   --color-brand-dark: #003041;
+  --color-brand-accent: #1a7ba3;
   /* Almost white - very light gray for reduced eye strain */
   --color-almost-white: #F9FAFB;
   /* Almost black - very dark gray instead of pure black */
@@ -15,11 +16,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-afacad);
   /* Waterstone Brand Colors for Tailwind */
   --color-brand-primary: #006089;
   --color-brand-dark: #003041;
+  --color-brand-accent: #1a7ba3;
   /* Almost white for Tailwind */
   --color-almost-white: #F9FAFB;
   /* Almost black for Tailwind */
@@ -36,7 +37,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-acafada), sans-serif;
 }
 
 /* Logo Carousel Infinite Scroll Animation */
