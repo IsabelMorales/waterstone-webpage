@@ -1,22 +1,58 @@
-import Image from "next/image";import Link from "next/link";
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+
+const HERO_IMAGES = [
+  { src: "/hero-1.webp", alt: "Waterstone Hero First" },
+  { src: "/hero-2.jpg", alt: "Waterstone Hero Second" },
+  { src: "/hero-3.jpg", alt: "Waterstone Hero Third" },
+  { src: "/hero-4.jpg", alt: "Waterstone Hero Fourth" },
+] as const;
+
+const ROTATION_INTERVAL_MS = 3000;
+const TRANSITION_DURATION_MS = 800;
 
 export default function Hero() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, ROTATION_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section className="relative w-full h-[90vh] min-h-[600px] max-h-[800px] overflow-hidden">
-      {/* Background Image */}
+    <section className="relative w-full h-[90vh] min-h-[37.5rem] max-h-[50rem] overflow-hidden">
+      {/* Background Images - Carrusel con transición */}
       <div className="absolute inset-0 w-full h-full">
-        <Image
-          src="/hero.webp"
-          alt="Property Management Hero"
-          fill
-          priority
-          className="object-cover"
-          quality={90}
-        />
+        {HERO_IMAGES.map((img, index) => (
+          <div
+            key={img.src}
+            className="absolute inset-0 w-full h-full transition-opacity ease-in-out"
+            style={{
+              opacity: index === currentIndex ? 1 : 0,
+              transitionDuration: `${TRANSITION_DURATION_MS}ms`,
+            }}
+            aria-hidden={index !== currentIndex}
+          >
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              priority={index === 0}
+              loading={index === 0 ? undefined : "lazy"}
+              className="object-cover"
+              quality={90}
+            />
+          </div>
+        ))}
       </div>
 
       {/* Dark Overlay with Brand Color */}
-      <div className="absolute inset-0 bg-[var(--color-almost-black)]/40" />
+      <div className="absolute inset-0 bg-[var(--color-almost-black)]/60" />
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center justify-center">
