@@ -59,7 +59,7 @@ export default function Hero() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="max-w-4xl mx-auto text-center">
             {/* Main Heading */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[var(--color-almost-white)] mb-6 leading-tight">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-[var(--color-almost-white)] mb-6 leading-tight">
              Real Estate <br/> Realized Opportunities
             </h1>
 

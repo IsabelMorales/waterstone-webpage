@@ -64,11 +64,11 @@ export default function CompanyFeatures() {
           <div className="text-center mb-12">
             <h2
               id="company-features-heading"
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-almost-white)] mb-4"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-almost-white)] mb-4"
             >
               Why Choose Waterstone
             </h2>
-            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
               Four core principles that define our approach to property management
             </p>
           </div>
@@ -88,16 +88,16 @@ export default function CompanyFeatures() {
             
             if (feature.id === "leasing") {
               gridClass = "feature-leasing";
-              minHeight = "min-h-[17.5rem] md:min-h-[33rem]";
+              minHeight = "min-h-[17.5rem] md:min-h-[37.5rem]";
             } else if (feature.id === "reputable") {
               gridClass = "feature-reputable";
-              minHeight = "min-h-[17.5rem] md:min-h-[17.5rem]";
+              minHeight = "min-h-[17.5rem] md:min-h-[19rem]";
             } else if (feature.id === "reliable") {
               gridClass = "feature-reliable";
-              minHeight = "min-h-[17.5rem] md:min-h-[15rem]";
+              minHeight = "min-h-[17.5rem] md:min-h-[18rem]";
             } else if (feature.id === "responsive") {
               gridClass = "feature-responsive";
-              minHeight = "min-h-[17.5rem] md:min-h-[15rem]";
+              minHeight = "min-h-[17.5rem] md:min-h-[18rem]";
             }
 
             return (
@@ -144,11 +144,11 @@ export default function CompanyFeatures() {
                             "font-bold text-[var(--color-almost-white)] transition-all duration-300",
                             isSmall
                               ? isHovered
-                                ? "text-xl md:text-2xl"
-                                : "text-2xl md:text-3xl"
+                                ? "text-2xl md:text-3xl"
+                                : "text-3xl md:text-4xl"
                               : isHovered
-                              ? "text-2xl md:text-3xl"
-                              : "text-3xl md:text-4xl lg:text-5xl"
+                              ? "text-3xl md:text-4xl"
+                              : "text-4xl md:text-5xl lg:text-6xl"
                           )}
                         >
                           {feature.title}
@@ -158,11 +158,11 @@ export default function CompanyFeatures() {
                             "text-gray-300 font-semibold transition-all duration-300",
                             isSmall
                               ? isHovered
-                                ? "text-sm md:text-base opacity-90"
-                                : "text-base md:text-lg"
+                                ? "text-base md:text-lg opacity-90"
+                                : "text-lg md:text-xl"
                               : isHovered
-                              ? "text-base md:text-lg opacity-90"
-                              : "text-lg md:text-xl lg:text-2xl"
+                              ? "text-lg md:text-xl opacity-90"
+                              : "text-xl md:text-2xl lg:text-3xl"
                           )}
                         >
                           {feature.subtitle}
@@ -179,7 +179,7 @@ export default function CompanyFeatures() {
                         )}
                       >
                         <p className={cn(
-                          isSmall ? "text-sm md:text-base" : "text-base md:text-lg"
+                          isSmall ? "text-base md:text-lg" : "text-lg md:text-xl"
                         )}>{feature.description}</p>
                       </div>
                     </div>

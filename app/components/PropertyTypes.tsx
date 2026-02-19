@@ -106,7 +106,7 @@ function CommercialPills({
 }) {
   return (
     <div className="mt-6 pt-6 border-t border-gray-600">
-      <p className="text-sm font-semibold text-[var(--color-almost-white)] mb-4">
+      <p className="text-base font-semibold text-[var(--color-almost-white)] mb-4">
         Types of commercial properties we specialize in:
       </p>
       <div className="flex flex-wrap gap-2 mb-4">
@@ -116,7 +116,7 @@ function CommercialPills({
             type="button"
             onClick={() => onSelect(subType.id)}
             className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium transition-colors border-none focus:outline-none focus:ring-0",
+              "px-4 py-2 rounded-full text-base font-medium transition-colors border-none focus:outline-none focus:ring-0",
               selectedId === subType.id
                 ? "bg-brand-primary text-[var(--color-almost-white)]"
                 : "bg-gray-700/80 text-gray-300 hover:bg-gray-600/80"
@@ -129,7 +129,7 @@ function CommercialPills({
         ))}
       </div>
       <div
-        className="text-gray-300 leading-relaxed min-h-[3.5rem]"
+        className="text-lg text-gray-300 leading-relaxed min-h-[3.5rem]"
         role="region"
         aria-live="polite"
       >
@@ -152,11 +152,11 @@ export default function PropertyTypes() {
           <div className="text-center mb-12 md:mb-16">
             <h2
               id="property-types-heading"
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-almost-white)] mb-4"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-almost-white)] mb-4"
             >
-              Property Types
+              Types of properties that we manage
             </h2>
-            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
               Following is a list of the 6 major types of properties we specialize
               in
             </p>
@@ -164,11 +164,13 @@ export default function PropertyTypes() {
         </AnimatedOnScroll>
 
         {/* Property types: una fila por tipo, imagen izquierda, texto derecha */}
-        <div className="space-y-10">
-          {propertyTypes.map((propertyType, index) => (
+        <div className="space-y-16">
+          {propertyTypes.map((propertyType, index) => {
+            const imageFirst = index % 2 === 0;
+            return (
             <AnimatedOnScroll key={propertyType.id}>
               <article
-                className="flex flex-col md:flex-row gap-6 md:gap-8 items-start"
+                className={`flex flex-col md:flex-row gap-6 md:gap-8 items-start ${!imageFirst ? "md:flex-row-reverse" : ""}`}
                 aria-labelledby={`property-type-${propertyType.id}`}
               >
                 {/* Imagen - tamaño fijo en todas las filas */}
@@ -184,21 +186,21 @@ export default function PropertyTypes() {
                 </div>
 
                 {/* Línea divisoria + Contenido */}
-                <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-start w-full md:pl-2">
+                <div className={`flex-1 min-w-0 flex flex-col md:flex-row md:items-start w-full md:pl-2 ${!imageFirst ? "md:flex-row-reverse" : ""}`}>
                   {/* Línea vertical decorativa */}
                   <div
                     className="hidden md:block w-0.5 h-14 flex-shrink-0 rounded-full mt-1"
                     style={{ backgroundColor: "var(--color-brand-accent)" }}
                     aria-hidden
                   />
-                  <div className="flex-1 min-w-0 flex flex-col md:pl-3 pr-8 md:pr-14">
+                  <div className={`flex-1 min-w-0 flex flex-col pr-8 ${imageFirst ? "md:pl-3 md:pr-14" : "md:pl-14 md:pr-3 md:text-right md:items-end"}`}>
                   <h3
                     id={`property-type-${propertyType.id}`}
-                    className="text-xl md:text-2xl font-semibold text-[var(--color-almost-white)] mb-2"
+                    className="text-2xl md:text-3xl font-semibold text-[var(--color-almost-white)] mb-2"
                   >
                     {propertyType.title}
                   </h3>
-                  <p className="text-gray-300 leading-relaxed">
+                  <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
                     {propertyType.description}
                   </p>
 
@@ -213,7 +215,8 @@ export default function PropertyTypes() {
                 </div>
               </article>
             </AnimatedOnScroll>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

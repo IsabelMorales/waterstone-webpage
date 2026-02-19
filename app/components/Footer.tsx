@@ -39,7 +39,7 @@ export default function Footer() {
                 className="h-12 w-auto"
               />
             </Link>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-gray-300 text-base leading-relaxed">
               Professional property management services in the United States.
               We are skillful, methodical and possess robust expertise in
               property management.
@@ -48,7 +48,7 @@ export default function Footer() {
 
           {/* Navigation Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-[var(--color-almost-white)]">
+            <h3 className="text-xl font-semibold mb-4 text-[var(--color-almost-white)]">
               Navigation
             </h3>
             <ul className="space-y-2">
@@ -56,7 +56,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-sm"
+                    className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-base"
                   >
                     {link.label}
                   </Link>
@@ -67,25 +67,25 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-[var(--color-almost-white)]">Services</h3>
+            <h3 className="text-xl font-semibold mb-4 text-[var(--color-almost-white)]">Services</h3>
             <ul className="space-y-2">
               <li>
-                <span className="text-gray-300 text-sm">
+                <span className="text-gray-300 text-base">
                   Building Maintenance
                 </span>
               </li>
               <li>
-                <span className="text-gray-300 text-sm">
+                <span className="text-gray-300 text-base">
                   Property Inspection
                 </span>
               </li>
               <li>
-                <span className="text-gray-300 text-sm">
+                <span className="text-gray-300 text-base">
                   Finance Management
                 </span>
               </li>
               <li>
-                <span className="text-gray-300 text-sm">
+                <span className="text-gray-300 text-base">
                   Customer Service
                 </span>
               </li>
@@ -94,12 +94,12 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-[var(--color-almost-white)]">Contact</h3>
+            <h3 className="text-xl font-semibold mb-4 text-[var(--color-almost-white)]">Contact</h3>
             <ul className="space-y-3">
               <li>
                 <a
                   href="mailto:info@waterstone.com"
-                  className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-sm block"
+                  className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-base block"
                 >
                   info@waterstone.com
                 </a>
@@ -107,7 +107,7 @@ export default function Footer() {
               <li>
                 <a
                   href="tel:+1234567890"
-                  className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-sm block"
+                  className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-base block"
                 >
                   +1 (234) 567-890
                 </a>
@@ -120,7 +120,7 @@ export default function Footer() {
           <div className="border-t border-[var(--color-almost-white)]/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright */}
-            <p className="text-gray-400 text-sm text-center md:text-left">
+            <p className="text-gray-400 text-base text-center md:text-left">
               © {currentYear} Waterstone. All rights reserved.
             </p>
 
@@ -130,7 +130,7 @@ export default function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-gray-400 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-sm"
+                  className="text-gray-400 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-base"
                 >
                   {link.label}
                 </Link>
