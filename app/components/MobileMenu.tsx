@@ -9,11 +9,11 @@ interface MobileMenuProps {
 }
 
 const waterstoneGroupItems = [
-  { href: '/waterstone-management', label: 'Waterstone Management' },
-  { href: '/waterstone-staffing', label: 'Waterstone Staffing' },
-  { href: '/waterstone-financing', label: 'Waterstone Financing' },
-  { href: '/waterstone-brokerage', label: 'Waterstone Brokerage' },
-  { href: '/waterstone-consulting', label: 'Waterstone Consulting' },
+  { href: '/waterstone-management', label: 'WS Management' },
+  { href: '/waterstone-staffing', label: 'WS Staffing' },
+  { href: '/waterstone-financing', label: 'WS Financing' },
+  { href: '/waterstone-brokerage', label: 'WS Brokerage' },
+  { href: '/waterstone-consulting', label: 'WS Consulting' },
 ];
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {

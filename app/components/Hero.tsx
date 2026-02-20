@@ -52,7 +52,7 @@ export default function Hero() {
       </div>
 
       {/* Dark Overlay with Brand Color */}
-      <div className="absolute inset-0 bg-[var(--color-almost-black)]/60" />
+      <div className="absolute inset-0 bg-[var(--color-almost-black)]/40" />
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center justify-center">

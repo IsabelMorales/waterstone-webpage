@@ -132,7 +132,7 @@ export default function CompanyFeatures() {
                   </div>
 
                   {/* Overlay oscuro */}
-                  <div className="absolute inset-0 bg-[var(--color-almost-black)]/60 group-hover:bg-[var(--color-almost-black)]/75 transition-colors duration-300" />
+                  <div className="absolute inset-0 bg-[var(--color-almost-black)]/40 group-hover:bg-[var(--color-almost-black)]/50 transition-colors duration-300" />
 
                   {/* Contenido */}
                   <div className="relative z-10 h-full flex flex-col justify-between p-6 md:p-8">
