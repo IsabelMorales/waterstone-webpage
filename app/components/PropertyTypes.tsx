@@ -23,7 +23,7 @@ const propertyTypes: PropertyType[] = [
     id: "multifamily",
     title: "Multi family buildings",
     description:
-      "Multi-story detached buildings, where each floor is a separate apartment or unit",
+      "Multi-story residential buildings, including detached structures, in which each floor may contain one or more separate dwelling units.",
     image: "/image5.jpg",
   },
   {

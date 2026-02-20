@@ -32,11 +32,11 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4" aria-label="Home">
               <Image
-                src="/logo.png"
+                src="/white-logo.png"
                 alt="Waterstone Logo"
-                width={180}
-                height={50}
-                className="h-12 w-auto"
+                width={200}
+                height={70}
+                className="h-18 w-auto"
               />
             </Link>
             <p className="text-gray-300 text-base leading-relaxed">
