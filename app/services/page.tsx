@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import ServicesHero from '../components/ServicesHero';
-import ServicesContent from '../components/ServicesContent';
-import ServicesDetailedAccordion from '../components/ServicesDetailedAccordion';
+import ServicesHero from '../components/sections/services/ServicesHero';
+import ServicesContent from '../components/sections/services/ServicesContent';
+import ServicesDetailedAccordion from '../components/sections/services/ServicesDetailedAccordion';
 
 export const metadata: Metadata = {
   title: 'Services | Waterstone - Property Management',

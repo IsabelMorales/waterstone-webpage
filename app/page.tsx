@@ -1,7 +1,7 @@
-import Hero from './components/Hero';
-import CompanyFeatures from './components/CompanyFeatures';
-import ManagementResponsibilities from './components/ManagementResponsibilities';
-import PropertyTypes from './components/PropertyTypes';
+import Hero from './components/sections/home/Hero';
+import CompanyFeatures from './components/sections/home/CompanyFeatures';
+import ManagementResponsibilities from './components/sections/home/ManagementResponsibilities';
+import PropertyTypes from './components/sections/home/PropertyTypes';
 
 export default function Home() {
   return (

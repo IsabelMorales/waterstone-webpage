@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import AnimatedOnScroll from './AnimatedOnScroll';
+import AnimatedOnScroll from '../../common/AnimatedOnScroll';
 import {
   FileSearch,
   Megaphone,

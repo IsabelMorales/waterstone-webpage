@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import AnimatedOnScroll from "./AnimatedOnScroll";
+import AnimatedOnScroll from "../../common/AnimatedOnScroll";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 

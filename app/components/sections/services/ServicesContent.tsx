@@ -1,4 +1,4 @@
-import AnimatedOnScroll from './AnimatedOnScroll';
+import AnimatedOnScroll from '../../common/AnimatedOnScroll';
 import { ClipboardList, Wrench, Calculator } from 'lucide-react';
 
 type LucideIcon = typeof ClipboardList;
