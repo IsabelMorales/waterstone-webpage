@@ -155,7 +155,7 @@ export default function ContactForm() {
         </div>
 
         {status === 'success' && (
-          <p className="text-sm text-brand-accent" role="status">
+          <p className="text-sm text-brand-almost-white" role="status">
             Thank you — your message has been sent. We&apos;ll get back to you soon.
           </p>
         )}
