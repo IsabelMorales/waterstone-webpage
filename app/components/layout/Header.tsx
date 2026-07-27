@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MobileMenuClient } from './MobileMenuClient';
 import WaterstoneGroupDropdown from './WaterstoneGroupDropdown';
+import { TENANT_LOGIN_URL } from '@/lib/links';
 
 export default function Header() {
   const menuItems = [
@@ -56,12 +57,14 @@ export default function Header() {
 
           {/* Desktop CTA Button */}
           <div className="hidden lg:flex lg:items-center lg:space-x-4">
-            <Link
-              href="/contact-us"
+            <a
+              href={TENANT_LOGIN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-6 py-2.5 bg-brand-primary text-almost-white text-sm font-medium rounded-lg hover:bg-brand-dark transition-all shadow-md hover:shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             >
               TENANT LOGIN
-            </Link>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}

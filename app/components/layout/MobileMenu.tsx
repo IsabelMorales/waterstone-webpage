@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { TENANT_LOGIN_URL } from '@/lib/links';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -109,13 +110,15 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
           {/* Botón CTA en el panel */}
           <div className="p-6 border-t border-gray-200">
-            <Link
-              href="/contact-us"
+            <a
+              href={TENANT_LOGIN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={onClose}
               className="block w-full text-center px-6 py-3 bg-brand-primary text-[var(--color-almost-white)] font-medium rounded-lg hover:bg-brand-dark transition-all shadow-md hover:shadow-lg"
             >
               TENANT LOGIN
-            </Link>
+            </a>
           </div>
         </div>
       </div>
