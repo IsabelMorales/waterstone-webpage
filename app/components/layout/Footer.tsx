@@ -10,7 +10,8 @@ const footerLinks = {
   main: [
     { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
-    { href: '/properties', label: 'Properties' },
+    // Temporarily hidden — restore when Properties returns to navigation
+    // { href: '/properties', label: 'Properties' },
     { href: '/listings', label: 'Listings' },
     { href: '/about-us', label: 'About Us' },
     { href: '/contact-us', label: 'Contact Us' },

@@ -7,7 +7,8 @@ import { TENANT_LOGIN_URL } from '@/lib/links';
 export default function Header() {
   const menuItems = [
     { href: '/services', label: 'Services' },
-    { href: '/properties', label: 'Properties' },
+    // Temporarily hidden — restore when Properties returns to navigation
+    // { href: '/properties', label: 'Properties' },
     { href: '/listings', label: 'Listings' },
     { href: '/about-us', label: 'About Us' },
     { href: '/contact-us', label: 'Contact Us' },
