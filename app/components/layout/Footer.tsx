@@ -110,7 +110,7 @@ export default function Footer() {
                   href="tel:+1234567890"
                   className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-base block"
                 >
-                  +1 (234) 567-890
+                  +1 (212) 787-9856
                 </a>
               </li>
             </ul>
