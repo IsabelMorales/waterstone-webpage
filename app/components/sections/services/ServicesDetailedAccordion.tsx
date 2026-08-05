@@ -110,9 +110,10 @@ const detailedServices: DetailedService[] = [
     title: 'Evictions',
     Icon: Scale,
     items: [
-      'Filing relevant documentation for initiation and completion of an unlawful detainer action',
-      'Representation of owner in court',
-      'Coordination with law enforcement for tenant and tenant\'s possessions removal from unit',
+      'We do not provide legal advice or courtroom representation. When eviction is required, we help engage qualified attorneys and support the process under their guidance.',
+      'Coordinating with retained counsel to prepare and file documentation for unlawful detainer actions',
+      'Working alongside the owner\'s attorney throughout court proceedings',
+      'Supporting coordination with law enforcement for unit recovery, as directed by legal counsel',
     ],
   },
   {
@@ -129,8 +130,9 @@ const detailedServices: DetailedService[] = [
     title: 'Inspections',
     Icon: Search,
     items: [
-      'Performance of periodic, pre-defined scheduled inspections (interior and exterior) to identify needed repairs, removal of safety hazards, fixing of code and lease violations, etc.',
-      'Generate periodic reports concerning the condition of the property for the owner inspection',
+      'Performance of periodic, pre-defined scheduled inspections (interior and exterior) to identify needed repairs, remove safety hazards, and address code and lease violations',
+      'Walkthroughs upon tenant request to evaluate repair needs and arrange timely maintenance',
+      'Periodic condition reports for owner review',
     ],
   },
   {
@@ -145,6 +147,7 @@ const detailedServices: DetailedService[] = [
       'Submit annual reports, suited for tax purposes as well as tax documents including a 1099 form',
       'Provide relevant tax deductions information to owners related to their rental property',
       'Provision of monthly cash-flow statements including detailed listing of itemized expenses and income',
+      'Monthly enhanced owner statements, with 24-hour access through the owner portal',
     ],
   },
   {
