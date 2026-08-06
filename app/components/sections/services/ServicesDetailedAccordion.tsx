@@ -121,8 +121,9 @@ const detailedServices: DetailedService[] = [
     title: 'Legal management',
     Icon: Briefcase,
     items: [
-      'Providing advice when a legal dispute or litigation occurs',
-      'Referring owner to an appropriate attorney as needed',
+      'We do not provide legal advice. When a dispute or litigation arises, we help connect owners with qualified attorneys and support the process under their guidance.',
+      'Referring the owner to an appropriate attorney as needed',
+      'Coordinating with retained counsel to keep the owner informed and the matter moving forward',
     ],
   },
   {
