@@ -21,6 +21,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const [isWaterstoneGroupOpen, setIsWaterstoneGroupOpen] = useState(false);
 
   const menuItems = [
+    { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
     // Temporarily hidden — restore when Properties returns to navigation
     // { href: '/properties', label: 'Properties' },
