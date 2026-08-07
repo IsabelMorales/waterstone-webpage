@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import AnimatedOnScroll from '../../common/AnimatedOnScroll';
 
 export default function AboutContent() {
@@ -7,7 +8,7 @@ export default function AboutContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Who we are + RAM credential */}
         <AnimatedOnScroll>
-          <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-12 mb-8 md:mb-10">
+          <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-12 mb-10 md:mb-14">
             <p className="flex-1 text-lg md:text-xl text-gray-300 leading-relaxed text-left">
               WaterStone Group, LLC is a real estate and investment management firm
               dedicated to helping landlords protect and grow their assets across New
@@ -29,7 +30,7 @@ export default function AboutContent() {
 
         {/* Promise quote */}
         <AnimatedOnScroll>
-          <blockquote className="flex items-start gap-4 md:gap-5 mb-8 md:mb-10 max-w-5xl">
+          <blockquote className="flex items-start gap-4 md:gap-5 mb-10 md:mb-14 max-w-5xl">
             <div
               className="w-1 h-14 md:h-16 flex-shrink-0 rounded-full mt-1"
               style={{ backgroundColor: 'var(--color-brand-accent)' }}
@@ -44,11 +45,11 @@ export default function AboutContent() {
           </blockquote>
         </AnimatedOnScroll>
 
-        {/* Focus + How we work */}
+        {/* What we focus on */}
         <AnimatedOnScroll>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-10 md:mb-12">
-            <div className="border border-gray-700 rounded-lg bg-gray-800/50 px-6 py-6 transition-colors hover:border-gray-600">
-              <h2 className="text-xl md:text-2xl font-semibold text-[var(--color-almost-white)] mb-4">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start mb-10 md:mb-14">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-almost-white)] mb-4">
                 What we focus on
               </h2>
               <p className="text-base md:text-lg text-gray-300 leading-relaxed">
@@ -60,8 +61,23 @@ export default function AboutContent() {
                 supporting our owners&apos; long-term financial goals.
               </p>
             </div>
-            <div className="border border-gray-700 rounded-lg bg-gray-800/50 px-6 py-6 transition-colors hover:border-gray-600">
-              <h2 className="text-xl md:text-2xl font-semibold text-[var(--color-almost-white)] mb-4">
+            <div className="relative w-full md:w-[42%] h-[16rem] md:h-[22rem] flex-shrink-0 overflow-hidden rounded-lg">
+              <Image
+                src="/building-1.jpg"
+                alt="Residential streetscape in a neighborhood we serve"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 42vw"
+              />
+            </div>
+          </div>
+        </AnimatedOnScroll>
+
+        {/* How we work */}
+        <AnimatedOnScroll>
+          <div className="flex flex-col md:flex-row-reverse gap-8 md:gap-12 items-start mb-10 md:mb-14">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-almost-white)] mb-4">
                 How we work
               </h2>
               <p className="text-base md:text-lg text-gray-300 leading-relaxed">
@@ -73,15 +89,32 @@ export default function AboutContent() {
                 investments thriving.
               </p>
             </div>
+            <div className="relative w-full md:w-[42%] h-[16rem] md:h-[22rem] flex-shrink-0 overflow-hidden rounded-lg">
+              <Image
+                src="/repairman.jpg"
+                alt="Hands-on property maintenance and building care"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 42vw"
+              />
+            </div>
           </div>
         </AnimatedOnScroll>
 
-        {/* Closing line */}
+        {/* Closing + CTA */}
         <AnimatedOnScroll>
-          <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto text-center">
-            Every plan is built around one outcome: maximum benefit for the people who
-            own and live in the buildings we manage.
-          </p>
+          <div className="max-w-3xl mx-auto text-center border-t border-gray-800 pt-10 md:pt-12">
+            <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-8">
+              Every plan is built around one outcome: maximum benefit for the people who
+              own and live in the buildings we manage.
+            </p>
+            <Link
+              href="/contact-us"
+              className="inline-block px-8 py-3.5 bg-brand-primary text-[var(--color-almost-white)] text-base md:text-lg font-medium rounded-lg hover:bg-brand-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-dark"
+            >
+              Contact Us
+            </Link>
+          </div>
         </AnimatedOnScroll>
       </div>
     </section>

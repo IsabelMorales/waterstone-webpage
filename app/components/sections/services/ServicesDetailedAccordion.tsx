@@ -110,10 +110,11 @@ const detailedServices: DetailedService[] = [
     title: 'Evictions',
     Icon: Scale,
     items: [
-      'We do not provide legal advice or courtroom representation. When eviction is required, we help engage qualified attorneys and support the process under their guidance.',
-      'Coordinating with retained counsel to prepare and file documentation for unlawful detainer actions',
-      'Working alongside the owner\'s attorney throughout court proceedings',
-      'Supporting coordination with law enforcement for unit recovery, as directed by legal counsel',
+      'Managing the eviction process from initial delinquency through resolution',
+      'Coordinating with retained counsel to prepare and file all required documentation',
+      'Tracking court proceedings, deadlines, appearances, and case status',
+      'Coordinating with enforcement officers following a judgment, when required',
+      'Keeping ownership informed throughout the process and working toward the most efficient resolution',
     ],
   },
   {
@@ -121,9 +122,12 @@ const detailedServices: DetailedService[] = [
     title: 'Legal management',
     Icon: Briefcase,
     items: [
-      'We do not provide legal advice. When a dispute or litigation arises, we help connect owners with qualified attorneys and support the process under their guidance.',
-      'Referring the owner to an appropriate attorney as needed',
-      'Coordinating with retained counsel to keep the owner informed and the matter moving forward',
+      'Serving as the management liaison between ownership, tenants, attorneys, and other involved parties',
+      'Identifying matters requiring legal attention and coordinating with appropriate counsel',
+      'Organizing leases, notices, correspondence, records, and supporting documentation for counsel',
+      'Managing communication and follow-up to keep legal matters progressing',
+      'Tracking active cases, deadlines, settlements, and required management action',
+      "Implementing counsel's direction at the property and management level",
     ],
   },
   {

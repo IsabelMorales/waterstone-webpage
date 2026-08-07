@@ -26,6 +26,22 @@ export default function AnimatedOnScroll({
     // Inicializar lastScrollY en el cliente
     lastScrollY.current = window.scrollY;
 
+    // Si ya está en viewport al montar (p. ej. debajo del hero en móvil), mostrar sin esperar scroll
+    const initialRect = element.getBoundingClientRect();
+    const alreadyInView =
+      initialRect.top < window.innerHeight && initialRect.bottom > 0;
+    if (alreadyInView) {
+      if (delay === 0) {
+        setIsVisible(true);
+        hasBeenAnimated.current = true;
+      } else {
+        timeoutRef.current = setTimeout(() => {
+          setIsVisible(true);
+          hasBeenAnimated.current = true;
+        }, delay);
+      }
+    }
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const scrollingDown = currentScrollY > lastScrollY.current;
