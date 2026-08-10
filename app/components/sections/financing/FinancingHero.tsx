@@ -13,13 +13,16 @@ export default function FinancingHero() {
           quality={85}
         />
       </div>
-      <div className="absolute inset-0 bg-[var(--color-almost-black)]/40" />
+      <div className="absolute inset-0 bg-[var(--color-almost-black)]/50" />
       <div className="relative z-10 h-full flex items-center justify-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-almost-white)] mb-4">
             WS Financing
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-[var(--color-almost-white)]/90 max-w-3xl mx-auto">
+          <p
+            className="text-lg sm:text-xl md:text-2xl font-medium text-[var(--color-almost-white)] max-w-3xl mx-auto"
+            style={{ textShadow: '0 1px 3px rgba(0,0,0,0.45)' }}
+          >
             Strategic Real Estate Capital. Structured for Your Growth.
           </p>
         </div>

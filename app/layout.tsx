@@ -12,6 +12,10 @@ const afacad = Afacad({
 export const metadata: Metadata = {
   title: "Waterstone - Property Management",
   description: "Professional property management services in the United States",
+  icons: {
+    icon: "/logo-icon.png",
+    apple: "/logo-icon.png",
+  },
 };
 
 export default function RootLayout({

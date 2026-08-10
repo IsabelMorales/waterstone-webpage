@@ -52,7 +52,7 @@ export default function Hero() {
       </div>
 
       {/* Dark Overlay with Brand Color */}
-      <div className="absolute inset-0 bg-[var(--color-almost-black)]/40" />
+      <div className="absolute inset-0 bg-[var(--color-almost-black)]/50" />
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center justify-center">
@@ -64,11 +64,12 @@ export default function Hero() {
             </h1>
 
             {/* Description */}
-            <p className="text-lg sm:text-xl md:text-2xl text-[var(--color-almost-white)]/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-              In one of the toughest real estate markets in the world, the biggest 
-              players are not necessarily the best ones; definitely not for everyone. 
-              <br/> While there are some players in New York that are bigger than us, 
-              we may still be the management company that is just the right size for <strong>YOU</strong>.
+            <p
+              className="text-lg sm:text-xl md:text-2xl font-medium text-[var(--color-almost-white)] mb-8 max-w-3xl mx-auto leading-relaxed"
+              style={{ textShadow: '0 1px 3px rgba(0,0,0,0.45)' }}
+            >
+            See how your real estate, with the right management, can perform like you never knew it could. 
+            We help owners in New York and Florida protect value, stabilize cash flow, and get more from every asset.
             </p>
 
             {/* CTA Button */}
