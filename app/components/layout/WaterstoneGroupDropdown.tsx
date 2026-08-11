@@ -36,10 +36,13 @@ export default function WaterstoneGroupDropdown() {
   }, [isOpen]);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div
+      className="relative"
+      ref={dropdownRef}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
       <button
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
         onClick={() => setIsOpen(!isOpen)}
         className="px-4 py-2 text-sm font-semibold text-brand-dark hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary flex items-center gap-1"
         aria-expanded={isOpen}
@@ -63,21 +66,19 @@ export default function WaterstoneGroupDropdown() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div
-          className="absolute top-full left-0 mt-1 w-64 bg-almost-white border border-gray-200 rounded-lg shadow-lg py-2 z-50"
-          onMouseEnter={() => setIsOpen(true)}
-          onMouseLeave={() => setIsOpen(false)}
-        >
-          {dropdownItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block px-4 py-2 text-sm text-brand-dark hover:bg-brand-primary/10 hover:text-brand-primary transition-colors outline-none"
-              onClick={() => setIsOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+        <div className="absolute top-full left-0 pt-1 w-64 z-50">
+          <div className="bg-almost-white border border-gray-200 rounded-lg shadow-lg py-2">
+            {dropdownItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="block px-4 py-2 text-sm text-brand-dark hover:bg-brand-primary/10 hover:text-brand-primary transition-colors outline-none"
+                onClick={() => setIsOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>
