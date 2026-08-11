@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const resend = new Resend(apiKey);
 
     const { error } = await resend.emails.send({
-      from: 'Waterstone Contact <info@waterstone.com>',
+      from: 'Waterstone Contact <info@waterstoneusa.com>',
       to: [toEmail],
       replyTo: email,
       subject: `New contact from ${name} — ${city}`,

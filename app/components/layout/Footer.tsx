@@ -99,10 +99,10 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="mailto:info@waterstone.com"
+                  href="mailto:info@waterstoneusa.com"
                   className="text-gray-300 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-base block"
                 >
-                  info@waterstone.com
+                  info@waterstoneusa.com
                 </a>
               </li>
               <li>
