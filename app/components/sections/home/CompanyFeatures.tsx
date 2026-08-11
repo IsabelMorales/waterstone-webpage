@@ -64,7 +64,7 @@ export default function CompanyFeatures() {
           <div className="text-center mb-12">
             <h2
               id="company-features-heading"
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-almost-white)] mb-4"
+              className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[var(--color-almost-white)] mb-4"
             >
               Why Choose Waterstone
             </h2>
@@ -141,7 +141,7 @@ export default function CompanyFeatures() {
                       <div className="mb-4">
                         <h3
                           className={cn(
-                            "font-bold text-[var(--color-almost-white)] transition-all duration-300",
+                            "font-semibold text-[var(--color-almost-white)] transition-all duration-300",
                             isSmall
                               ? isHovered
                                 ? "text-2xl md:text-3xl"

@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Afacad } from "next/font/google";
+import { Urbanist, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 
-const afacad = Afacad({
-  variable: "--font-afacad",
+const urbanist = Urbanist({
+  variable: "--font-urbanist",
+  subsets: ["latin"],
+});
+
+const nunitoSans = Nunito_Sans({
+  variable: "--font-nunito-sans",
   subsets: ["latin"],
 });
 
@@ -26,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${afacad.variable} antialiased`}
+        className={`${urbanist.variable} ${nunitoSans.variable} antialiased`}
       >
         <Header />
         <main>{children}</main>

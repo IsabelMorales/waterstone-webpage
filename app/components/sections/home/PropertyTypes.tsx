@@ -152,7 +152,7 @@ export default function PropertyTypes() {
           <div className="text-center mb-12 md:mb-16">
             <h2
               id="property-types-heading"
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-almost-white)] mb-4"
+              className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[var(--color-almost-white)] mb-4"
             >
               Types of properties that we manage
             </h2>

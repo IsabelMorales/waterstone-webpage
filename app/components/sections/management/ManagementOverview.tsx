@@ -8,7 +8,7 @@ export default function ManagementOverview() {
         <AnimatedOnScroll>
           <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start">
             <div className="flex-1 min-w-0">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-almost-white)] mb-6 leading-tight">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[var(--color-almost-white)] mb-6 leading-tight">
                 Your Assets in Expert Hands, Every Single Day
               </h2>
               <div className="space-y-4 text-base md:text-lg text-gray-300 leading-relaxed">

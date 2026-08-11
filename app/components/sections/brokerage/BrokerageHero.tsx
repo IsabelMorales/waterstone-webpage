@@ -16,7 +16,7 @@ export default function BrokerageHero() {
       <div className="absolute inset-0 bg-[var(--color-almost-black)]/50" />
       <div className="relative z-10 h-full flex items-center justify-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-almost-white)] mb-4">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-light uppercase tracking-[0.12em] text-[var(--color-almost-white)] mb-4 leading-snug">
             WS Brokerage
           </h1>
           <p

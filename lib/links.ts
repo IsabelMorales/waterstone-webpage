@@ -1,5 +1,5 @@
 export const TENANT_LOGIN_URL =
-  'https://account.appfolio.com/realms/foliospace/login-actions/authenticate?client_id=account-picker&tab_id=cqDe44lM_QQ&client_data=eyJydSI6Imh0dHBzOi8vYWNjb3VudC5hcHBmb2xpby5jb20vcmVhbG1zL2ZvbGlvc3BhY2UvYXBwZm9saW8vYWNjb3VudC1waWNrZXIvbG9naW4tcmVkaXJlY3Q_cGF0aD0vIiwicnQiOiJjb2RlIiwic3QiOiIwLzNkNDQ1ODc0LTFiMTAtMGRmYi01ZDNmLTQxNzgxY2Y0NzE1NCJ9&execution=02941c98-3481-4334-b9dc-5ab55077383c&kc_locale=en';
+  'https://account.appfolio.com/realms/foliospace/protocol/openid-connect/auth?client_id=account-picker&redirect_uri=https%3A%2F%2Faccount.appfolio.com%2Frealms%2Ffoliospace%2Fappfolio%2Faccount-picker%2Flogin-redirect%3Fpath%3D%2F&state=0%2Fb60f35ab-321b-dcbb-ba29-d9f020637b7c&response_type=code&scope=openid';
 
 export const APPFOLIO_LISTINGS_HOST = 'waterstonegroup.appfolio.com';
 export const APPFOLIO_LISTINGS_URL = `https://${APPFOLIO_LISTINGS_HOST}/listings`;

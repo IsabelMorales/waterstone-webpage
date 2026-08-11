@@ -16,7 +16,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-afacad);
+  --font-sans: var(--font-nunito-sans);
+  --font-display: var(--font-urbanist);
   /* Waterstone Brand Colors for Tailwind */
   --color-brand-primary: #006089;
   --color-brand-dark: #003041;
@@ -37,7 +38,13 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-acafada), sans-serif;
+  font-family: var(--font-nunito-sans), sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-urbanist), sans-serif;
 }
 
 /* Logo Carousel Infinite Scroll Animation */

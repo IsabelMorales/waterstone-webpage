@@ -41,7 +41,7 @@ export default function ManagementServices() {
     <section className="w-full py-12 md:py-16 bg-brand-dark border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedOnScroll>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-almost-white)] mb-10 md:mb-12 text-center">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[var(--color-almost-white)] mb-10 md:mb-12 text-center">
             End-to-End Operational Excellence
           </h2>
         </AnimatedOnScroll>

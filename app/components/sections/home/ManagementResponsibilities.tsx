@@ -69,7 +69,7 @@ export default function ManagementResponsibilities() {
         {/* Section Header */}
         <AnimatedOnScroll>
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-almost-white)] mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[var(--color-almost-white)] mb-4">
               What we do at Waterstone
             </h2>
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
