@@ -16,10 +16,6 @@ const footerLinks = {
     { href: '/about-us', label: 'About Us' },
     { href: '/contact-us', label: 'Contact Us' },
   ] as FooterLink[],
-  legal: [
-    { href: '/privacy-policy', label: 'Privacy Policy' },
-    { href: '/terms-conditions', label: 'Terms & Conditions' },
-  ] as FooterLink[],
 };
 
 export default function Footer() {
@@ -124,19 +120,6 @@ export default function Footer() {
             <p className="text-gray-400 text-base text-center md:text-left">
               © {currentYear} Waterstone. All rights reserved.
             </p>
-
-            {/* Legal Links */}
-            <div className="flex flex-wrap justify-center md:justify-end gap-6">
-              {footerLinks.legal.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-gray-400 hover:text-[var(--color-almost-white)] transition-colors duration-200 text-base"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
       </div>
