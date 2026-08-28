@@ -11,6 +11,7 @@ import {
   adminPrimaryBtnClassName,
   adminSecondaryBtnClassName,
 } from './admin-ui';
+import AdminPasswordInput from './AdminPasswordInput';
 
 interface AdminFormProps {
   mode: 'create' | 'edit';
@@ -168,15 +169,13 @@ export default function AdminForm({ mode, admin }: AdminFormProps) {
                 </span>
               )}
             </label>
-            <input
+            <AdminPasswordInput
               id="admin-user-password"
-              type="password"
               autoComplete={isCreate ? 'new-password' : 'off'}
               required={isCreate}
               minLength={isCreate ? 6 : undefined}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={adminInputClassName}
+              onChange={setPassword}
             />
           </div>
 

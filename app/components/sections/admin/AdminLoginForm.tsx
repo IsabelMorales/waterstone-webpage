@@ -9,6 +9,7 @@ import {
   adminPrimaryBtnClassName,
 } from './admin-ui';
 import { formatLoginApiError } from '@/lib/api/admin-messages';
+import AdminPasswordInput from './AdminPasswordInput';
 
 type Mode = 'login' | 'forgot';
 
@@ -147,14 +148,12 @@ export default function AdminLoginForm({ notice = null }: AdminLoginFormProps) {
                 Forgot password?
               </button>
             </div>
-            <input
+            <AdminPasswordInput
               id="admin-password"
-              type="password"
               autoComplete="current-password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={adminInputClassName}
+              onChange={setPassword}
             />
           </div>
 
