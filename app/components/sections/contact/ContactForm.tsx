@@ -171,7 +171,7 @@ export default function ContactForm() {
           className={cn(
             'w-full md:w-auto px-8 py-3 rounded-lg font-medium transition-all',
             'bg-brand-primary text-[var(--color-almost-white)]',
-            'hover:bg-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-dark',
+            'hover:bg-brand-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-dark',
             'disabled:opacity-60 disabled:cursor-not-allowed'
           )}
         >

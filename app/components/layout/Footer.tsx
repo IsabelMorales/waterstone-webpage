@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import AdminSessionLink from '../common/AdminSessionLink';
 
 interface FooterLink {
   href: string;
@@ -120,6 +121,7 @@ export default function Footer() {
             <p className="text-gray-400 text-base text-center md:text-left">
               © {currentYear} Waterstone. All rights reserved.
             </p>
+            <AdminSessionLink />
           </div>
         </div>
       </div>

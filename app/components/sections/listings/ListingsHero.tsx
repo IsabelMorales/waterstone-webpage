@@ -23,7 +23,7 @@ export default function ListingsHero() {
             className="text-lg sm:text-xl md:text-2xl font-medium text-[var(--color-almost-white)] max-w-2xl mx-auto"
             style={{ textShadow: '0 1px 3px rgba(0,0,0,0.45)' }}
           >
-            Available rentals, updated in real time.
+            Available rentals and sales.
           </p>
         </div>
       </div>

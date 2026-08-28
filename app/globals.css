@@ -102,3 +102,29 @@ h3 {
     grid-row: 2;
   }
 }
+
+/* Listing tab panel enter */
+@keyframes tab-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-panel-enter {
+  animation: tab-panel-in 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-panel-enter {
+    animation: none;
+  }
+
+  .tab-indicator-slide {
+    transition: none !important;
+  }
+}

@@ -78,7 +78,7 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/contact-us"
-                className="px-8 py-4 bg-brand-primary text-[var(--color-almost-white)] text-lg font-medium rounded-lg hover:bg-brand-dark transition-all shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:ring-offset-transparent"
+                className="px-8 py-4 bg-brand-primary text-[var(--color-almost-white)] text-lg font-medium rounded-lg hover:bg-brand-accent transition-all shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:ring-offset-transparent"
               >
                 Get Started Today
               </Link>

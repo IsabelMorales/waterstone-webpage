@@ -62,7 +62,7 @@ export default function Header() {
               href={TENANT_LOGIN_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-2.5 bg-brand-primary text-almost-white text-sm font-medium rounded-lg hover:bg-brand-dark transition-all shadow-md hover:shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+              className="px-6 py-2.5 bg-brand-primary text-almost-white text-sm font-medium rounded-lg hover:bg-brand-accent transition-all shadow-md hover:shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             >
               TENANT LOGIN
             </a>
