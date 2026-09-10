@@ -40,4 +40,4 @@ export const adminSecondaryBtnClassName = cn(
 );
 
 export const adminSectionTitleClassName =
-  'text-xs font-semibold uppercase tracking-[0.16em] text-brand-accent mb-4';
+  'text-base md:text-md font-bold uppercase tracking-[0.08em] text-brand-accent mb-5';

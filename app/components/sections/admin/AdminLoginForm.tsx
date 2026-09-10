@@ -17,6 +17,22 @@ interface AdminLoginFormProps {
   notice?: string | null;
 }
 
+async function waitForAdminSession(attempts = 4): Promise<boolean> {
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      const me = await fetch('/api/admin/me', {
+        cache: 'no-store',
+        credentials: 'same-origin',
+      });
+      if (me.ok) return true;
+    } catch {
+      // retry
+    }
+    await new Promise((resolve) => setTimeout(resolve, 75 * (i + 1)));
+  }
+  return false;
+}
+
 export default function AdminLoginForm({ notice = null }: AdminLoginFormProps) {
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
@@ -42,6 +58,7 @@ export default function AdminLoginForm({ notice = null }: AdminLoginFormProps) {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ email, password }),
       });
       const data = (await response.json()) as { message?: string };
@@ -52,7 +69,16 @@ export default function AdminLoginForm({ notice = null }: AdminLoginFormProps) {
         return;
       }
 
-      window.location.href = '/admin/listings';
+      const sessionOk = await waitForAdminSession();
+      if (!sessionOk) {
+        setError(
+          'Signed in, but the session cookie was not available yet. Please try Sign in again.'
+        );
+        setLoading(false);
+        return;
+      }
+
+      window.location.assign('/admin/listings');
     } catch {
       setError('Unable to reach the server. Is the API running on localhost:5000?');
       setLoading(false);

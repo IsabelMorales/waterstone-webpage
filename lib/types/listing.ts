@@ -6,6 +6,11 @@ export type ListingStatus =
   | 'rented'
   | 'sold';
 
+export type FurnishedStatus =
+  | 'furnished'
+  | 'not_furnished'
+  | 'offered_as_either';
+
 export interface ListingHomeFeature {
   label: string;
   sublabel?: string;
@@ -26,6 +31,109 @@ export interface ListingPriceHistoryEntry {
   amount: number;
   type: ListingType;
   event: string;
+}
+
+export interface ListingFeeItem {
+  name: string;
+  amount: number;
+  required: boolean;
+  oneTime: boolean;
+  refundable: boolean;
+  id?: string;
+}
+
+export interface ListingFees {
+  application: ListingFeeItem;
+  securityDeposit: ListingFeeItem;
+  other: ListingFeeItem[];
+}
+
+export interface ListingRentInfo {
+  marketAs: string;
+  dateAvailable: string | null;
+  shortTermAllowed: boolean;
+}
+
+export interface ListingRooms {
+  legalBeds: number;
+  fullBaths: number;
+  halfBaths: number;
+  totalRooms: number;
+  totalSqft: number | null;
+  unitDescription: string;
+}
+
+export interface ListingBuildingFacts {
+  yearBuilt: number | null;
+  buildingType: string | null;
+  stories: number | null;
+  period: string | null;
+  buildingClass: string | null;
+  unitCount: number | null;
+}
+
+export interface ToggleWithDetails {
+  enabled: boolean;
+  details: string | null;
+}
+
+export interface ListingBuildingAmenities {
+  pets: ToggleWithDetails;
+  outdoorSpace: {
+    courtyard: boolean;
+    roofDeck: boolean;
+  };
+  features: {
+    concierge: boolean;
+    elevator: boolean;
+    laundryInBuilding: boolean;
+    liveInSuper: boolean;
+    smokeFree: boolean;
+    wheelchairAccess: boolean;
+    doorman: ToggleWithDetails;
+  };
+  parking: {
+    garageParking: boolean;
+    valetParking: boolean;
+  };
+  storage: {
+    bikeRoom: boolean;
+    coldStorage: boolean;
+    lockerCage: boolean;
+    packageRoom: boolean;
+  };
+  sharedSpaces: {
+    childrenPlayroom: boolean;
+    gym: boolean;
+    mediaRoom: boolean;
+    recreation: boolean;
+    swimmingPool: boolean;
+  };
+}
+
+export interface ListingUnitAmenities {
+  outdoorSpace: {
+    balcony: boolean;
+    garden: boolean;
+    privateRoofDeck: boolean;
+    roofRights: boolean;
+    terrace: boolean;
+  };
+  features: {
+    centralAir: boolean;
+    dishwasher: boolean;
+    hardwoodFloors: boolean;
+    loft: boolean;
+    washerDryerInUnit: boolean;
+    fireplace: ToggleWithDetails;
+  };
+  view: {
+    city: boolean;
+    garden: boolean;
+    park: boolean;
+    skyline: boolean;
+    water: boolean;
+  };
 }
 
 export interface Listing {
@@ -49,12 +157,20 @@ export interface Listing {
   customFields: ListingCustomField[];
   unitDetails: Record<string, unknown> | null;
   building: Record<string, unknown> | null;
+  hasConcession: boolean;
+  furnishedStatus: FurnishedStatus;
+  fees: ListingFees;
+  rentInfo: ListingRentInfo;
+  rooms: ListingRooms;
+  buildingFacts: ListingBuildingFacts;
+  buildingAmenities: ListingBuildingAmenities;
+  unitAmenities: ListingUnitAmenities;
   priceHistory: ListingPriceHistoryEntry[];
   images: string[];
   videos: string[];
   floorPlans: string[];
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   status: ListingStatus;
   createdAt: number;
   updatedAt: number;
@@ -79,11 +195,21 @@ export interface ListingWritePayload {
   customFields?: ListingCustomField[];
   unitDetails?: Record<string, unknown> | null;
   building?: Record<string, unknown> | null;
+  hasConcession?: boolean;
+  furnishedStatus?: FurnishedStatus;
+  fees?: ListingFees;
+  rentInfo?: ListingRentInfo;
+  rooms?: ListingRooms;
+  buildingFacts?: ListingBuildingFacts;
+  buildingAmenities?: ListingBuildingAmenities;
+  unitAmenities?: ListingUnitAmenities;
   images?: string[];
   videos?: string[];
   floorPlans?: string[];
   imageMode?: 'add' | 'replace';
   removeImages?: string[];
+  floorPlanMode?: 'add' | 'replace';
+  removeFloorPlans?: string[];
 }
 
 export interface ListingsListResponse {

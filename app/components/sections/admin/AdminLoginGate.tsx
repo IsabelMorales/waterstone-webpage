@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import AdminLoginForm from './AdminLoginForm';
 
 interface AdminLoginGateProps {
@@ -9,8 +8,10 @@ interface AdminLoginGateProps {
   hasToken: boolean;
 }
 
-export default function AdminLoginGate({ notice, hasToken }: AdminLoginGateProps) {
-  const router = useRouter();
+export default function AdminLoginGate({
+  notice,
+  hasToken,
+}: AdminLoginGateProps) {
   const [showLogin, setShowLogin] = useState(!hasToken);
 
   useEffect(() => {
@@ -20,15 +21,20 @@ export default function AdminLoginGate({ notice, hasToken }: AdminLoginGateProps
 
     async function checkSession() {
       try {
-        const response = await fetch('/api/admin/me', { cache: 'no-store' });
+        const response = await fetch('/api/admin/me', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        });
         if (!active) return;
 
         if (response.ok) {
-          router.replace('/admin/listings');
+          window.location.assign('/admin/listings');
           return;
         }
 
-        setShowLogin(true);
+        window.location.assign(
+          '/api/admin/session/clear?reason=session_invalid'
+        );
       } catch {
         if (active) setShowLogin(true);
       }
@@ -39,7 +45,7 @@ export default function AdminLoginGate({ notice, hasToken }: AdminLoginGateProps
     return () => {
       active = false;
     };
-  }, [hasToken, router]);
+  }, [hasToken]);
 
   if (!showLogin) {
     return (

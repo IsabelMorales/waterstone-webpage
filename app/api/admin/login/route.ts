@@ -42,6 +42,11 @@ export async function POST(request: Request) {
       user: result.user,
     });
 
+    // Drop any stale token first so a previous invalid session cannot win.
+    response.cookies.set(ADMIN_TOKEN_COOKIE, '', {
+      ...adminCookieOptions(0),
+      maxAge: 0,
+    });
     response.cookies.set(
       ADMIN_TOKEN_COOKIE,
       result.token,

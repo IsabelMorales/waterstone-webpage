@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { AuthUser } from '@/lib/types/listing';
 
@@ -10,7 +9,6 @@ interface AdminShellProps {
 }
 
 export default function AdminShell({ children }: AdminShellProps) {
-  const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [checking, setChecking] = useState(true);
 
@@ -18,9 +16,14 @@ export default function AdminShell({ children }: AdminShellProps) {
     let active = true;
     async function check() {
       try {
-        const response = await fetch('/api/admin/me');
+        const response = await fetch('/api/admin/me', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        });
         if (!response.ok) {
-          router.replace('/admin');
+          window.location.assign(
+            '/api/admin/session/clear?reason=session_invalid'
+          );
           return;
         }
         const data = (await response.json()) as { user: AuthUser };
@@ -29,14 +32,14 @@ export default function AdminShell({ children }: AdminShellProps) {
           setChecking(false);
         }
       } catch {
-        router.replace('/admin');
+        window.location.assign('/admin?reason=api_unavailable');
       }
     }
     void check();
     return () => {
       active = false;
     };
-  }, [router]);
+  }, []);
 
   async function handleLogout() {
     await fetch('/api/admin/logout', { method: 'POST' });

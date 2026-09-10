@@ -16,7 +16,7 @@ export async function requireAdminPageSession(): Promise<string> {
   const token = await getAdminToken();
 
   if (!token) {
-    redirect('/admin');
+    redirect('/admin?reason=session_invalid');
   }
 
   try {
@@ -31,7 +31,7 @@ export async function requireAdminPageSession(): Promise<string> {
 }
 
 /**
- * On /admin: valid session → listings; stale cookie → clear silently.
+ * On /admin: valid session → listings; stale cookie → clear with notice.
  */
 export async function resolveAdminLoginPageSession(): Promise<void> {
   const token = await getAdminToken();
@@ -42,7 +42,7 @@ export async function resolveAdminLoginPageSession(): Promise<void> {
     redirect('/admin/listings');
   } catch (err) {
     if (isAuthSessionError(err)) {
-      redirect('/api/admin/session/clear');
+      redirect('/api/admin/session/clear?reason=session_invalid');
     }
   }
 }
