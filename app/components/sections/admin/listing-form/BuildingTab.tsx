@@ -1,11 +1,9 @@
 'use client';
 
-import type { ListingBuildingAmenities, ListingBuildingFacts } from '@/lib/types/listing';
+import type { ListingBuildingAmenities } from '@/lib/types/listing';
 import { BUILDING_AMENITY_LABELS } from '@/lib/listing-defaults';
 import {
   adminInputClassName,
-  adminLabelClassName,
-  adminNumberClassName,
   adminSectionTitleClassName,
 } from '../admin-ui';
 import { AmenityCheckbox, AmenityGroup } from './AmenityControls';
@@ -13,32 +11,16 @@ import type { ListingFormState } from './form-state';
 
 interface BuildingTabProps {
   fields: ListingFormState;
-  onFactsChange: (facts: ListingBuildingFacts) => void;
   onAmenitiesChange: (amenities: ListingBuildingAmenities) => void;
-}
-
-function factValue(value: number | null): string {
-  return value == null ? '' : String(value);
 }
 
 export default function BuildingTab({
   fields,
-  onFactsChange,
   onAmenitiesChange,
 }: BuildingTabProps) {
-  const facts = fields.buildingFacts;
   const amenities = fields.buildingAmenities;
 
-  function setFact<K extends keyof ListingBuildingFacts>(
-    key: K,
-    value: ListingBuildingFacts[K]
-  ) {
-    onFactsChange({ ...facts, [key]: value });
-  }
-
-  function setBool(
-    path: (a: ListingBuildingAmenities) => void
-  ) {
+  function setBool(path: (a: ListingBuildingAmenities) => void) {
     const next = structuredClone(amenities);
     path(next);
     onAmenitiesChange(next);
@@ -46,110 +28,6 @@ export default function BuildingTab({
 
   return (
     <div className="space-y-10">
-      <section>
-        <h2 className={adminSectionTitleClassName}>Building facts</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-          <div>
-            <label htmlFor="bf-year" className={adminLabelClassName}>
-              Year built
-            </label>
-            <input
-              id="bf-year"
-              type="number"
-              min="1700"
-              max="2100"
-              inputMode="numeric"
-              value={factValue(facts.yearBuilt)}
-              onChange={(e) =>
-                setFact(
-                  'yearBuilt',
-                  e.target.value === '' ? null : Number(e.target.value)
-                )
-              }
-              className={adminNumberClassName}
-            />
-          </div>
-          <div>
-            <label htmlFor="bf-period" className={adminLabelClassName}>
-              Period
-            </label>
-            <input
-              id="bf-period"
-              value={facts.period || ''}
-              onChange={(e) => setFact('period', e.target.value || null)}
-              className={adminInputClassName}
-              placeholder="Pre-war, Post-war…"
-            />
-          </div>
-          <div>
-            <label htmlFor="bf-type" className={adminLabelClassName}>
-              Building type
-            </label>
-            <input
-              id="bf-type"
-              value={facts.buildingType || ''}
-              onChange={(e) =>
-                setFact('buildingType', e.target.value || null)
-              }
-              className={adminInputClassName}
-              placeholder="Elevator, Rental…"
-            />
-          </div>
-          <div>
-            <label htmlFor="bf-class" className={adminLabelClassName}>
-              Building class
-            </label>
-            <input
-              id="bf-class"
-              value={facts.buildingClass || ''}
-              onChange={(e) =>
-                setFact('buildingClass', e.target.value || null)
-              }
-              className={adminInputClassName}
-              placeholder="C1, D6…"
-            />
-          </div>
-          <div>
-            <label htmlFor="bf-stories" className={adminLabelClassName}>
-              Stories
-            </label>
-            <input
-              id="bf-stories"
-              type="number"
-              min="0"
-              inputMode="numeric"
-              value={factValue(facts.stories)}
-              onChange={(e) =>
-                setFact(
-                  'stories',
-                  e.target.value === '' ? null : Number(e.target.value)
-                )
-              }
-              className={adminNumberClassName}
-            />
-          </div>
-          <div>
-            <label htmlFor="bf-units" className={adminLabelClassName}>
-              Unit count
-            </label>
-            <input
-              id="bf-units"
-              type="number"
-              min="0"
-              inputMode="numeric"
-              value={factValue(facts.unitCount)}
-              onChange={(e) =>
-                setFact(
-                  'unitCount',
-                  e.target.value === '' ? null : Number(e.target.value)
-                )
-              }
-              className={adminNumberClassName}
-            />
-          </div>
-        </div>
-      </section>
-
       <section className="space-y-8">
         <h2 className={adminSectionTitleClassName}>Building amenities</h2>
 

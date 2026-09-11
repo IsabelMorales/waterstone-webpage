@@ -1,10 +1,12 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { isPdfUrl } from '@/lib/listings-format';
 import ListingMedia from './ListingMedia';
 import ListingImageLightbox from './ListingImageLightbox';
+import ListingPdfLightbox from './ListingPdfLightbox';
 
 interface ListingGalleryProps {
   images: string[];
@@ -15,6 +17,7 @@ interface ListingGalleryProps {
 
 /**
  * Real-estate style gallery: full-width hero with overlay arrows + thumbnail strip.
+ * Supports image URLs and PDF floor plans in the same sequence.
  */
 export default function ListingGallery({
   images,
@@ -23,11 +26,14 @@ export default function ListingGallery({
 }: ListingGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const [thumbFade, setThumbFade] = useState({ left: false, right: false });
   const thumbStripRef = useRef<HTMLDivElement>(null);
   const activeImage = images[activeIndex] || null;
+  const activeIsPdf = Boolean(activeImage && isPdfUrl(activeImage));
   const isLarge = size === 'large';
   const hasMultiple = images.length > 1;
+  const imageOnly = images.filter((url) => !isPdfUrl(url));
 
   const goTo = useCallback(
     (index: number) => {
@@ -104,31 +110,53 @@ export default function ListingGallery({
 
   const thumbWidthClass = isLarge ? 'w-36 sm:w-40' : 'w-32 sm:w-36';
 
+  function openActive() {
+    if (activeIsPdf) setPdfOpen(true);
+    else setLightboxOpen(true);
+  }
+
   return (
     <div className={className}>
       <div className="relative w-full">
         <button
           type="button"
-          onClick={() => setLightboxOpen(true)}
+          onClick={openActive}
           className={cn(
             'relative aspect-video w-full overflow-hidden rounded-lg border border-gray-700/80 bg-gray-800 text-left',
             'cursor-zoom-in',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
             isLarge && 'min-h-[16rem] sm:min-h-[20rem] lg:min-h-[24rem]'
           )}
-          aria-label="Open photo at full size"
+          aria-label={
+            activeIsPdf ? 'Open floor plan PDF' : 'Open photo at full size'
+          }
         >
-          <ListingMedia
-            src={activeImage!}
-            fill
-            priority
-            className="object-cover"
-            sizes={
-              isLarge
-                ? '(max-width: 1024px) 100vw, 55vw'
-                : '(max-width: 1024px) 100vw, 50vw'
-            }
-          />
+          {activeIsPdf ? (
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-b from-gray-800/90 to-gray-900 px-6 text-center">
+              <FileText
+                className="h-12 w-12 text-brand-accent"
+                aria-hidden
+              />
+              <span className="text-base font-semibold text-[var(--color-almost-white)]">
+                Floor plan PDF
+              </span>
+              <span className="text-sm text-brand-accent underline">
+                View PDF
+              </span>
+            </span>
+          ) : (
+            <ListingMedia
+              src={activeImage!}
+              fill
+              priority
+              className="object-cover"
+              sizes={
+                isLarge
+                  ? '(max-width: 1024px) 100vw, 55vw'
+                  : '(max-width: 1024px) 100vw, 50vw'
+              }
+            />
+          )}
         </button>
 
         {hasMultiple && (
@@ -190,42 +218,74 @@ export default function ListingGallery({
             role="tablist"
             aria-label="Listing photos"
           >
-            {images.map((src, index) => (
-              <button
-                key={`${src}-${index}`}
-                type="button"
-                role="tab"
-                data-thumb-index={index}
-                onClick={() => setActiveIndex(index)}
-                className={cn(
-                  'relative aspect-video flex-shrink-0 overflow-hidden rounded-lg border-4 transition-colors duration-200',
-                  thumbWidthClass,
-                  index === activeIndex
-                    ? 'border-brand-accent'
-                    : 'border-transparent hover:border-brand-accent'
-                )}
-                aria-label={`Show photo ${index + 1}`}
-                aria-selected={index === activeIndex}
-              >
-                <ListingMedia
-                  src={src}
-                  fill
-                  className="object-cover pointer-events-none"
-                  sizes="160px"
-                />
-              </button>
-            ))}
+            {images.map((src, index) => {
+              const pdf = isPdfUrl(src);
+              return (
+                <button
+                  key={`${src}-${index}`}
+                  type="button"
+                  role="tab"
+                  data-thumb-index={index}
+                  onClick={() => setActiveIndex(index)}
+                  className={cn(
+                    'relative aspect-video flex-shrink-0 overflow-hidden rounded-lg border-4 transition-colors duration-200',
+                    thumbWidthClass,
+                    index === activeIndex
+                      ? 'border-brand-accent'
+                      : 'border-transparent hover:border-brand-accent'
+                  )}
+                  aria-label={
+                    pdf
+                      ? `Show floor plan PDF ${index + 1}`
+                      : `Show photo ${index + 1}`
+                  }
+                  aria-selected={index === activeIndex}
+                >
+                  {pdf ? (
+                    <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-gray-900/90 px-2">
+                      <FileText
+                        className="h-5 w-5 text-brand-accent"
+                        aria-hidden
+                      />
+                      <span className="text-[10px] font-medium text-gray-300">
+                        PDF
+                      </span>
+                    </span>
+                  ) : (
+                    <ListingMedia
+                      src={src}
+                      fill
+                      className="object-cover pointer-events-none"
+                      sizes="160px"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
       <ListingImageLightbox
-        src={activeImage!}
-        open={lightboxOpen}
+        src={activeIsPdf ? imageOnly[0] || '' : activeImage!}
+        open={lightboxOpen && !activeIsPdf}
         onClose={() => setLightboxOpen(false)}
-        images={images}
-        activeIndex={activeIndex}
-        onNavigate={setActiveIndex}
+        images={imageOnly}
+        activeIndex={Math.max(
+          0,
+          imageOnly.indexOf(activeImage || '')
+        )}
+        onNavigate={(nextIndex) => {
+          const url = imageOnly[nextIndex];
+          if (!url) return;
+          setActiveIndex(images.indexOf(url));
+        }}
+      />
+      <ListingPdfLightbox
+        src={activeIsPdf ? activeImage || '' : ''}
+        open={pdfOpen && activeIsPdf}
+        onClose={() => setPdfOpen(false)}
+        title="Floor plan PDF"
       />
     </div>
   );

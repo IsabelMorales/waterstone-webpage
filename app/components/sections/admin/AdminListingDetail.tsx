@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { Bath, BedDouble, Maximize2 } from 'lucide-react';
 import type { Listing } from '@/lib/types/listing';
 import {
   FURNISHED_STATUS_LABELS,
@@ -13,10 +14,9 @@ import {
 } from '@/lib/listing-defaults';
 import {
   collectAmenityLabels,
-  formatBedsBaths,
   formatFeeAmount,
+  formatFeeMeta,
   formatPrice,
-  isPdfUrl,
   toUsDateDisplay,
 } from '@/lib/listings-format';
 import { cn } from '@/lib/utils';
@@ -37,7 +37,6 @@ type DetailTabId =
   | 'overview'
   | 'costs'
   | 'amenities'
-  | 'building'
   | 'media';
 
 function Field({
@@ -106,23 +105,26 @@ export default function AdminListingDetail({
     >,
     UNIT_AMENITY_LABELS
   );
-  const facts = listing.buildingFacts;
   const videos = (listing.videos || []).filter(Boolean);
   const floorPlans = listing.floorPlans || [];
+  const galleryMedia = [...images, ...floorPlans];
   const feeRows = [
     fees.application,
     fees.securityDeposit,
     ...fees.other.filter((fee) => fee.name.trim()),
   ];
-  const hasBuildingFacts = Boolean(
-    facts &&
-      (facts.yearBuilt != null ||
-        facts.stories != null ||
-        facts.buildingType ||
-        facts.buildingClass ||
-        facts.period ||
-        facts.unitCount != null)
-  );
+
+  const bedsLabel =
+    beds === 0 ? 'Studio' : `${beds} bed${beds === 1 ? '' : 's'}`;
+  const bathsLabel = `${baths} bath${baths === 1 ? '' : 's'}`;
+  const locationLine = [listing.borough, listing.neighborhood]
+    .filter(Boolean)
+    .join(' · ');
+  const availableDisplay = toUsDateDisplay(listing.rentInfo?.dateAvailable);
+  const furnishedDisplay = listing.furnishedStatus
+    ? FURNISHED_STATUS_LABELS[listing.furnishedStatus] ||
+      listing.furnishedStatus
+    : null;
 
   const tabs = useMemo(() => {
     const items: { id: DetailTabId; label: string }[] = [
@@ -132,20 +134,11 @@ export default function AdminListingDetail({
     if (unitLabels.length || buildingLabels.length) {
       items.push({ id: 'amenities', label: 'Amenities' });
     }
-    if (hasBuildingFacts) {
-      items.push({ id: 'building', label: 'Building' });
-    }
-    if (videos.length || floorPlans.length) {
+    if (videos.length) {
       items.push({ id: 'media', label: 'Media' });
     }
     return items;
-  }, [
-    buildingLabels.length,
-    floorPlans.length,
-    hasBuildingFacts,
-    unitLabels.length,
-    videos.length,
-  ]);
+  }, [buildingLabels.length, unitLabels.length, videos.length]);
 
   const [activeTab, setActiveTab] = useState<DetailTabId>('overview');
   const currentTab =
@@ -233,46 +226,81 @@ export default function AdminListingDetail({
         </p>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
-        <ListingGallery images={images} />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-10 lg:items-start">
+        <ListingGallery images={galleryMedia} />
 
-        <div className="border border-gray-700/80 rounded-lg bg-gray-800/40 px-6 py-6 md:px-8">
-          <dl>
-            <Field
-              label="Type"
-              value={listing.type === 'rent' ? 'Rent' : 'Sale'}
-            />
-            <Field label="Status" value={listing.status} />
-            <Field
-              label="Price"
-              value={formatPrice(listing.price, listing.type)}
-            />
-            <Field label="Borough" value={listing.borough} />
-            <Field label="Neighborhood" value={listing.neighborhood} />
-            <Field
-              label="Bedrooms / Bathrooms"
-              value={formatBedsBaths(beds, baths)}
-            />
-            <Field
-              label="Square feet"
-              value={sqft != null ? Number(sqft).toLocaleString() : null}
-            />
-            <Field
-              label="Available"
-              value={toUsDateDisplay(listing.rentInfo?.dateAvailable)}
-            />
-            <Field
-              label="Furnished"
-              value={
-                listing.furnishedStatus
-                  ? FURNISHED_STATUS_LABELS[listing.furnishedStatus]
-                  : null
-              }
-            />
-            <Field
-              label="Concession"
-              value={listing.hasConcession ? 'Yes' : 'No'}
-            />
+        <div className="border border-gray-700/80 rounded-lg bg-gray-800/40 px-6 py-6 md:px-7">
+          <p className="text-2xl md:text-3xl font-semibold text-[var(--color-almost-white)]">
+            {formatPrice(listing.price, listing.type)}
+          </p>
+
+          <ul className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 list-none text-gray-300">
+            <li className="inline-flex items-center gap-2">
+              <BedDouble
+                className="h-5 w-5 text-brand-accent flex-shrink-0"
+                aria-hidden
+              />
+              <span>{bedsLabel}</span>
+            </li>
+            <li className="inline-flex items-center gap-2">
+              <Bath
+                className="h-5 w-5 text-brand-accent flex-shrink-0"
+                aria-hidden
+              />
+              <span>{bathsLabel}</span>
+            </li>
+            {sqft != null && (
+              <li className="inline-flex items-center gap-2">
+                <Maximize2
+                  className="h-5 w-5 text-brand-accent flex-shrink-0"
+                  aria-hidden
+                />
+                <span>{Number(sqft).toLocaleString()} sqft</span>
+              </li>
+            )}
+          </ul>
+
+          {locationLine && (
+            <p className="mt-4 text-sm text-gray-400">{locationLine}</p>
+          )}
+
+          <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
+            {availableDisplay && (
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-accent">
+                  Available
+                </dt>
+                <dd className="mt-1 text-sm text-[var(--color-almost-white)]">
+                  {availableDisplay}
+                </dd>
+              </div>
+            )}
+            {furnishedDisplay && (
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-accent">
+                  Furnished
+                </dt>
+                <dd className="mt-1 text-sm text-[var(--color-almost-white)]">
+                  {furnishedDisplay}
+                </dd>
+              </div>
+            )}
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-accent">
+                Concession
+              </dt>
+              <dd className="mt-1 text-sm text-[var(--color-almost-white)]">
+                {listing.hasConcession ? 'Yes' : 'No'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-accent">
+                Type
+              </dt>
+              <dd className="mt-1 text-sm text-[var(--color-almost-white)]">
+                {listing.type === 'rent' ? 'Rent' : 'Sale'}
+              </dd>
+            </div>
           </dl>
         </div>
       </div>
@@ -297,8 +325,13 @@ export default function AdminListingDetail({
                 key={`${fee.name}-${fee.id || fee.amount}`}
                 className="flex justify-between gap-4 border-b border-gray-700/50 pb-3 text-[var(--color-almost-white)]"
               >
-                <span>{fee.name}</span>
-                <span className="text-brand-accent">
+                <div className="min-w-0">
+                  <span className="block">{fee.name}</span>
+                  <span className="mt-1 block text-xs text-gray-500">
+                    {formatFeeMeta(fee)}
+                  </span>
+                </div>
+                <span className="text-brand-accent flex-shrink-0">
                   {formatFeeAmount(fee.amount)}
                 </span>
               </li>
@@ -323,94 +356,8 @@ export default function AdminListingDetail({
           </div>
         )}
 
-        {currentTab === 'building' && facts && (
-          <ul className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm list-none">
-            {facts.yearBuilt != null && (
-              <li>
-                <span className="block text-xs uppercase tracking-[0.12em] text-brand-accent mb-1">
-                  Year built
-                </span>
-                <span className="text-[var(--color-almost-white)]">
-                  {facts.yearBuilt}
-                </span>
-              </li>
-            )}
-            {facts.period && (
-              <li>
-                <span className="block text-xs uppercase tracking-[0.12em] text-brand-accent mb-1">
-                  Period
-                </span>
-                <span className="text-[var(--color-almost-white)]">
-                  {facts.period}
-                </span>
-              </li>
-            )}
-            {facts.buildingType && (
-              <li>
-                <span className="block text-xs uppercase tracking-[0.12em] text-brand-accent mb-1">
-                  Type
-                </span>
-                <span className="text-[var(--color-almost-white)]">
-                  {facts.buildingType}
-                </span>
-              </li>
-            )}
-            {facts.buildingClass && (
-              <li>
-                <span className="block text-xs uppercase tracking-[0.12em] text-brand-accent mb-1">
-                  Class
-                </span>
-                <span className="text-[var(--color-almost-white)]">
-                  {facts.buildingClass}
-                </span>
-              </li>
-            )}
-            {facts.stories != null && (
-              <li>
-                <span className="block text-xs uppercase tracking-[0.12em] text-brand-accent mb-1">
-                  Stories
-                </span>
-                <span className="text-[var(--color-almost-white)]">
-                  {facts.stories}
-                </span>
-              </li>
-            )}
-            {facts.unitCount != null && (
-              <li>
-                <span className="block text-xs uppercase tracking-[0.12em] text-brand-accent mb-1">
-                  Units
-                </span>
-                <span className="text-[var(--color-almost-white)]">
-                  {facts.unitCount}
-                </span>
-              </li>
-            )}
-          </ul>
-        )}
-
         {currentTab === 'media' && (
           <div className="space-y-6">
-            {floorPlans.length > 0 && (
-              <div>
-                <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-brand-accent mb-3">
-                  Floor plans
-                </h3>
-                <ul className="space-y-2 list-none">
-                  {floorPlans.map((url) => (
-                    <li key={url}>
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-brand-accent underline"
-                      >
-                        {isPdfUrl(url) ? 'PDF floor plan' : 'Floor plan image'}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
             {videos.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-brand-accent mb-3">

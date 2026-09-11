@@ -28,8 +28,18 @@ const inputClassName = cn(
   'transition-colors'
 );
 
-export default function ContactForm() {
-  const [fields, setFields] = useState<FormFields>(initialFields);
+interface ContactFormProps {
+  /** Prefill message (e.g. listing inquiry from detail page). */
+  initialMessage?: string;
+}
+
+export default function ContactForm({
+  initialMessage = '',
+}: ContactFormProps) {
+  const [fields, setFields] = useState<FormFields>({
+    ...initialFields,
+    message: initialMessage,
+  });
   const [status, setStatus] = useState<FormStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -58,7 +68,7 @@ export default function ContactForm() {
       }
 
       setStatus('success');
-      setFields(initialFields);
+      setFields({ ...initialFields, message: initialMessage });
     } catch {
       setStatus('error');
       setErrorMessage('Unable to send your message. Please try again later.');

@@ -8,6 +8,19 @@ export function formatFeeAmount(amount: number): string {
   }).format(amount || 0);
 }
 
+/** Human-readable fee flags for public/admin detail. */
+export function formatFeeMeta(fee: {
+  oneTime?: boolean;
+  required?: boolean;
+  refundable?: boolean;
+}): string {
+  const parts: string[] = [];
+  parts.push(fee.oneTime ? 'One-time' : 'Recurring');
+  parts.push(fee.required ? 'Required' : 'Optional');
+  parts.push(fee.refundable ? 'Refundable' : 'Non-refundable');
+  return parts.join(' · ');
+}
+
 export function formatPrice(price: number, type: 'rent' | 'sale'): string {
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',

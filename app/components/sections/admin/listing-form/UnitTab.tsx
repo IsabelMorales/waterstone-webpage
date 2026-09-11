@@ -2,7 +2,7 @@
 
 import type { ListingRentInfo, ListingRooms, ListingUnitAmenities } from '@/lib/types/listing';
 import { UNIT_AMENITY_LABELS } from '@/lib/listing-defaults';
-import { maskUsDateInput } from '@/lib/listings-format';
+import { toIsoDateValue, toUsDateDisplay } from '@/lib/listings-format';
 import { cn } from '@/lib/utils';
 import {
   adminInputClassName,
@@ -71,19 +71,32 @@ export default function UnitTab({
               </label>
               <input
                 id="rent-date"
-                type="text"
-                inputMode="numeric"
-                autoComplete="off"
-                value={rentInfo.dateAvailable || ''}
+                type="date"
+                value={toIsoDateValue(rentInfo.dateAvailable) || ''}
                 onChange={(e) =>
                   onRentInfoChange({
                     ...rentInfo,
-                    dateAvailable: maskUsDateInput(e.target.value) || null,
+                    dateAvailable: e.target.value
+                      ? toUsDateDisplay(e.target.value)
+                      : null,
                   })
                 }
-                className={adminInputClassName}
-                placeholder="MM/DD/YYYY"
-                maxLength={10}
+                onKeyDown={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
+                onClick={(e) => {
+                  const input = e.currentTarget;
+                  if (typeof input.showPicker === 'function') {
+                    try {
+                      input.showPicker();
+                    } catch {
+                      // Browser may reject showPicker if not triggered by user gesture edge cases
+                    }
+                  }
+                }}
+                className={cn(
+                  adminInputClassName,
+                  '[color-scheme:dark] cursor-pointer caret-transparent'
+                )}
               />
             </div>
             <AmenityCheckbox

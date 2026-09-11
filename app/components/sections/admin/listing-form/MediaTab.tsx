@@ -1,6 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type DragEvent,
+} from 'react';
+import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { isPdfUrl } from '@/lib/listings-format';
 import ListingImageLightbox from '../../../common/ListingImageLightbox';
@@ -22,9 +28,11 @@ interface MediaTabProps {
   existingImages: string[];
   removeImages: string[];
   onToggleRemoveImage: (url: string) => void;
+  onMoveExistingImage: (fromIndex: number, toIndex: number) => void;
   newImageFiles: File[];
   onImageFilesChange: (files: FileList | null) => void;
   onRemoveNewImage: (index: number) => void;
+  onMoveNewImage: (fromIndex: number, toIndex: number) => void;
   imageInputKey: number;
   existingFloorPlans: string[];
   removeFloorPlans: string[];
@@ -38,20 +46,23 @@ interface MediaTabProps {
   onVideosChange: (videos: string[]) => void;
 }
 
+/** Blob preview URLs derived from files; revoke previous set on change. */
 function useObjectPreviews(files: File[]) {
-  const [previews, setPreviews] = useState<PreviewItem[]>([]);
+  const previews = useMemo<PreviewItem[]>(
+    () =>
+      files.map((file, index) => ({
+        key: `${file.name}-${file.size}-${file.lastModified}-${index}`,
+        url: URL.createObjectURL(file),
+        name: file.name,
+      })),
+    [files]
+  );
 
   useEffect(() => {
-    const items = files.map((file, index) => ({
-      key: `${file.name}-${file.size}-${file.lastModified}-${index}`,
-      url: URL.createObjectURL(file),
-      name: file.name,
-    }));
-    setPreviews(items);
     return () => {
-      items.forEach((item) => URL.revokeObjectURL(item.url));
+      previews.forEach((item) => URL.revokeObjectURL(item.url));
     };
-  }, [files]);
+  }, [previews]);
 
   return previews;
 }
@@ -102,14 +113,51 @@ function DropZone({
   );
 }
 
+function ReorderControls({
+  index,
+  total,
+  onMove,
+  label,
+}: {
+  index: number;
+  total: number;
+  onMove: (from: number, to: number) => void;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        disabled={index === 0}
+        onClick={() => onMove(index, index - 1)}
+        className="rounded p-1 text-gray-400 hover:text-brand-accent disabled:opacity-30 disabled:hover:text-gray-400"
+        aria-label={`Move ${label} up`}
+      >
+        <ChevronUp className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        disabled={index >= total - 1}
+        onClick={() => onMove(index, index + 1)}
+        className="rounded p-1 text-gray-400 hover:text-brand-accent disabled:opacity-30 disabled:hover:text-gray-400"
+        aria-label={`Move ${label} down`}
+      >
+        <ChevronDown className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
 export default function MediaTab({
   mode,
   existingImages,
   removeImages,
   onToggleRemoveImage,
+  onMoveExistingImage,
   newImageFiles,
   onImageFilesChange,
   onRemoveNewImage,
+  onMoveNewImage,
   imageInputKey,
   existingFloorPlans,
   removeFloorPlans,
@@ -123,6 +171,8 @@ export default function MediaTab({
   onVideosChange,
 }: MediaTabProps) {
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragKind, setDragKind] = useState<'existing' | 'new' | null>(null);
   const imagePreviews = useObjectPreviews(newImageFiles);
   const floorPlanPreviews = useObjectPreviews(newFloorPlanFiles);
 
@@ -141,25 +191,62 @@ export default function MediaTab({
     onVideosChange(next.length ? next : ['']);
   }
 
+  function handleDragStart(kind: 'existing' | 'new', index: number) {
+    setDragKind(kind);
+    setDragIndex(index);
+  }
+
+  function handleDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  function handleDrop(kind: 'existing' | 'new', toIndex: number) {
+    if (dragKind !== kind || dragIndex == null || dragIndex === toIndex) {
+      setDragKind(null);
+      setDragIndex(null);
+      return;
+    }
+    if (kind === 'existing') onMoveExistingImage(dragIndex, toIndex);
+    else onMoveNewImage(dragIndex, toIndex);
+    setDragKind(null);
+    setDragIndex(null);
+  }
+
   return (
     <div className="space-y-10">
       <section>
         <h2 className={adminSectionTitleClassName}>Photos</h2>
+        <p className="text-xs text-gray-500 mb-4">
+          Drag photos or use the arrows to set display order (first photo is the
+          cover).
+        </p>
 
         {mode === 'edit' && existingImages.length > 0 && (
           <div className="mb-6">
             <p className={adminLabelClassName}>Current photos</p>
             <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3 list-none">
-              {existingImages.map((url) => {
+              {existingImages.map((url, index) => {
                 const marked = removeImages.includes(url);
                 return (
-                  <li key={url}>
+                  <li
+                    key={url}
+                    draggable={!marked}
+                    onDragStart={() => handleDragStart('existing', index)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop('existing', index)}
+                    className={cn(
+                      !marked && 'cursor-grab active:cursor-grabbing'
+                    )}
+                  >
                     <div
                       className={cn(
                         'relative aspect-video overflow-hidden rounded-lg border bg-gray-900/50',
                         marked
                           ? 'border-red-500/70 opacity-40'
-                          : 'border-gray-700'
+                          : 'border-gray-700',
+                        dragKind === 'existing' &&
+                          dragIndex === index &&
+                          'ring-2 ring-brand-accent'
                       )}
                     >
                       <button
@@ -175,14 +262,34 @@ export default function MediaTab({
                           sizes="160px"
                         />
                       </button>
+                      {!marked && (
+                        <span className="pointer-events-none absolute left-1.5 top-1.5 rounded bg-black/60 p-0.5 text-gray-300">
+                          <GripVertical className="h-3.5 w-3.5" />
+                        </span>
+                      )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => onToggleRemoveImage(url)}
-                      className="mt-2 text-xs text-gray-400 hover:text-brand-accent transition-colors"
-                    >
-                      {marked ? 'Undo remove' : 'Remove'}
-                    </button>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onToggleRemoveImage(url)}
+                        className={cn(
+                          'text-xs transition-colors',
+                          marked
+                            ? 'text-gray-400 hover:text-brand-accent'
+                            : 'text-red-400 hover:text-red-300'
+                        )}
+                      >
+                        {marked ? 'Undo remove' : 'Remove'}
+                      </button>
+                      {!marked && existingImages.length > 1 && (
+                        <ReorderControls
+                          index={index}
+                          total={existingImages.length}
+                          onMove={onMoveExistingImage}
+                          label={`photo ${index + 1}`}
+                        />
+                      )}
+                    </div>
                   </li>
                 );
               })}
@@ -203,11 +310,23 @@ export default function MediaTab({
         {imagePreviews.length > 0 && (
           <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 list-none">
             {imagePreviews.map((preview, index) => (
-              <li key={preview.key}>
+              <li
+                key={preview.key}
+                draggable
+                onDragStart={() => handleDragStart('new', index)}
+                onDragOver={handleDragOver}
+                onDrop={() => handleDrop('new', index)}
+                className="cursor-grab active:cursor-grabbing"
+              >
                 <button
                   type="button"
                   onClick={() => setLightboxSrc(preview.url)}
-                  className="relative aspect-video w-full overflow-hidden rounded-lg border border-gray-700 bg-gray-900/50"
+                  className={cn(
+                    'relative aspect-video w-full overflow-hidden rounded-lg border border-gray-700 bg-gray-900/50',
+                    dragKind === 'new' &&
+                      dragIndex === index &&
+                      'ring-2 ring-brand-accent'
+                  )}
                   aria-label={`Preview ${preview.name}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -216,16 +335,31 @@ export default function MediaTab({
                     alt=""
                     className="h-full w-full object-cover"
                   />
+                  <span className="pointer-events-none absolute left-1.5 top-1.5 rounded bg-black/60 p-0.5 text-gray-300">
+                    <GripVertical className="h-3.5 w-3.5" />
+                  </span>
                 </button>
                 <div className="mt-2 flex items-start justify-between gap-2">
-                  <p className="text-xs text-gray-500 truncate">{preview.name}</p>
-                  <button
-                    type="button"
-                    onClick={() => onRemoveNewImage(index)}
-                    className="text-xs text-gray-400 hover:text-brand-accent transition-colors flex-shrink-0"
-                  >
-                    Remove
-                  </button>
+                  <p className="text-xs text-gray-500 truncate min-w-0">
+                    {preview.name}
+                  </p>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {imagePreviews.length > 1 && (
+                      <ReorderControls
+                        index={index}
+                        total={imagePreviews.length}
+                        onMove={onMoveNewImage}
+                        label={preview.name}
+                      />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => onRemoveNewImage(index)}
+                      className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}

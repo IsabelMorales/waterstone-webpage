@@ -8,7 +8,20 @@ export const metadata: Metadata = {
     'Get in touch with WaterStone Group for property management services in New York and Florida.',
 };
 
-export default function ContactUsPage() {
+interface ContactUsPageProps {
+  searchParams: Promise<{ title?: string }>;
+}
+
+export default async function ContactUsPage({
+  searchParams,
+}: ContactUsPageProps) {
+  const params = await searchParams;
+  const title = typeof params.title === 'string' ? params.title.trim() : '';
+
+  const initialMessage = title
+    ? `I'm interested in the listing “${title}”.\n\n`
+    : '';
+
   return (
     <div className="min-h-screen bg-brand-dark">
       <ContactHero />
@@ -21,7 +34,7 @@ export default function ContactUsPage() {
               form below and our team will get back to you shortly.
             </p>
           </div>
-          <ContactForm />
+          <ContactForm initialMessage={initialMessage} />
         </div>
       </section>
     </div>

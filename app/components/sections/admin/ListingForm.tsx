@@ -42,6 +42,22 @@ function mergeFiles(prev: File[], incoming: File[], max: number) {
   return Array.from(map.values()).slice(0, max);
 }
 
+function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
+  if (
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= items.length ||
+    toIndex >= items.length
+  ) {
+    return items;
+  }
+  const next = [...items];
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, item);
+  return next;
+}
+
 const FLOOR_PLAN_MAX_BYTES = 10 * 1024 * 1024;
 
 export default function ListingForm({ mode, listing }: ListingFormProps) {
@@ -50,7 +66,9 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
     toFormState(listing)
   );
   const [activeTab, setActiveTab] = useState<ListingFormTabId>('basics');
-  const [existingImages] = useState<string[]>(listing?.images || []);
+  const [existingImages, setExistingImages] = useState<string[]>(
+    listing?.images || []
+  );
   const [removeImages, setRemoveImages] = useState<string[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [imageInputKey, setImageInputKey] = useState(0);
@@ -107,16 +125,28 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
       const payload = buildWritePayload(fields);
       const hasImageFiles = newImageFiles.length > 0;
       const hasFloorPlanFiles = newFloorPlanFiles.length > 0;
+      const keptImages = existingImages.filter(
+        (url) => !removeImages.includes(url)
+      );
+      const originalImages = listing?.images || [];
+      const imagesTouched =
+        mode === 'edit' &&
+        (hasImageFiles ||
+          removeImages.length > 0 ||
+          existingImages.join('\0') !== originalImages.join('\0'));
+
       const needsMultipart =
         hasImageFiles ||
         hasFloorPlanFiles ||
-        (mode === 'edit' &&
-          (removeImages.length > 0 || removeFloorPlans.length > 0));
+        (mode === 'edit' && removeFloorPlans.length > 0);
 
       const writeBody = {
         ...payload,
-        ...(mode === 'edit' && removeImages.length
-          ? { removeImages, imageMode: 'add' as const }
+        ...(imagesTouched
+          ? {
+              imageMode: 'replace' as const,
+              images: keptImages,
+            }
           : hasImageFiles && mode === 'edit'
             ? { imageMode: 'add' as const }
             : {}),
@@ -249,9 +279,6 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
           {activeTab === 'building' && (
             <BuildingTab
               fields={fields}
-              onFactsChange={(buildingFacts) =>
-                updateField('buildingFacts', buildingFacts)
-              }
               onAmenitiesChange={(buildingAmenities) =>
                 updateField('buildingAmenities', buildingAmenities)
               }
@@ -286,6 +313,9 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
                     : [...prev, url]
                 )
               }
+              onMoveExistingImage={(from, to) =>
+                setExistingImages((prev) => moveItem(prev, from, to))
+              }
               newImageFiles={newImageFiles}
               onImageFilesChange={(fileList) => {
                 const incoming = Array.from(fileList || []);
@@ -299,6 +329,9 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
                 );
                 setImageInputKey((key) => key + 1);
               }}
+              onMoveNewImage={(from, to) =>
+                setNewImageFiles((prev) => moveItem(prev, from, to))
+              }
               imageInputKey={imageInputKey}
               existingFloorPlans={existingFloorPlans}
               removeFloorPlans={removeFloorPlans}

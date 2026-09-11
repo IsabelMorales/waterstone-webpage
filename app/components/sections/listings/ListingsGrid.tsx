@@ -3,14 +3,10 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import AnimatedOnScroll from '../../common/AnimatedOnScroll';
-import ListingMedia from '../../common/ListingMedia';
+import ListingCardHoverGallery from '../../common/ListingCardHoverGallery';
 import ListingTabs from '../../common/ListingTabs';
 import type { Listing, ListingType } from '@/lib/types/listing';
-import {
-  formatBedsBaths,
-  formatPrice,
-  listingCover,
-} from '@/lib/listings-format';
+import { formatBedsBaths, formatPrice } from '@/lib/listings-format';
 
 interface ListingsGridProps {
   listings: Listing[];
@@ -21,25 +17,90 @@ const TABS: { id: ListingType; label: string }[] = [
   { id: 'sale', label: 'For sale' },
 ];
 
-export default function ListingsGrid({ listings }: ListingsGridProps) {
-  const [activeTab, setActiveTab] = useState<ListingType>('rent');
+function ListingCard({
+  listing,
+  priority,
+}: {
+  listing: Listing;
+  priority?: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const images = listing.images?.filter(Boolean) || [];
 
-  const filtered = useMemo(
-    () => listings.filter((listing) => listing.type === activeTab),
-    [listings, activeTab]
+  return (
+    <Link
+      href={`/listings/${listing.slug}`}
+      className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <article aria-labelledby={`listing-title-${listing.id}`}>
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-800">
+          <ListingCardHoverGallery
+            images={images}
+            hovered={hovered}
+            priority={priority}
+          />
+        </div>
+        <div className="mt-3 flex items-start gap-3">
+          <div
+            className="w-0.5 h-10 flex-shrink-0 rounded-full mt-1"
+            style={{
+              backgroundColor: 'var(--color-brand-accent)',
+            }}
+            aria-hidden
+          />
+          <div>
+            <h2
+              id={`listing-title-${listing.id}`}
+              className="text-lg md:text-xl font-semibold text-[var(--color-almost-white)] leading-snug group-hover:text-brand-accent transition-colors"
+            >
+              {listing.title}
+            </h2>
+            <p className="mt-1 text-sm text-gray-300 leading-snug">
+              {listing.address}
+            </p>
+            <p className="mt-1 text-sm text-gray-400">
+              {formatBedsBaths(listing.bedrooms, listing.bathrooms)}
+            </p>
+            <p className="mt-1 text-base font-medium text-[var(--color-almost-white)]">
+              {formatPrice(listing.price, listing.type)}
+            </p>
+          </div>
+        </div>
+      </article>
+    </Link>
   );
+}
 
+export default function ListingsGrid({ listings }: ListingsGridProps) {
   const tabItems = useMemo(
     () =>
       TABS.map((tab) => ({
         ...tab,
         count: listings.filter((l) => l.type === tab.id).length,
-      })),
+      })).filter((tab) => tab.count > 0),
     [listings]
   );
 
+  const [activeTab, setActiveTab] = useState<ListingType>(
+    () => tabItems[0]?.id || 'rent'
+  );
+
+  const resolvedTab =
+    tabItems.find((tab) => tab.id === activeTab)?.id ||
+    tabItems[0]?.id ||
+    activeTab;
+
+  const filtered = useMemo(
+    () => listings.filter((listing) => listing.type === resolvedTab),
+    [listings, resolvedTab]
+  );
+
   const emptyCopy =
-    activeTab === 'rent'
+    resolvedTab === 'rent'
       ? 'No rentals available right now'
       : 'No sales available right now';
 
@@ -53,17 +114,19 @@ export default function ListingsGrid({ listings }: ListingsGridProps) {
           </p>
         </AnimatedOnScroll>
 
-        <ListingTabs
-          className="mb-10"
-          tabs={tabItems}
-          activeTab={activeTab}
-          onChange={setActiveTab}
-          buttonClassName="text-sm md:text-base"
-        />
+        {tabItems.length > 0 && (
+          <ListingTabs
+            className="mb-10"
+            tabs={tabItems}
+            activeTab={resolvedTab}
+            onChange={setActiveTab}
+            buttonClassName="text-sm md:text-base"
+          />
+        )}
 
         <AnimatedOnScroll>
           <div
-            key={activeTab}
+            key={resolvedTab}
             className="tab-panel-enter"
             role="tabpanel"
             aria-live="polite"
@@ -78,7 +141,9 @@ export default function ListingsGrid({ listings }: ListingsGridProps) {
                       aria-hidden
                     />
                     <p className="text-lg md:text-xl font-semibold text-[var(--color-almost-white)]">
-                      {emptyCopy}
+                      {listings.length === 0
+                        ? 'No listings available right now'
+                        : emptyCopy}
                     </p>
                     <p className="mt-2 text-sm md:text-base text-gray-400 max-w-xl leading-relaxed">
                       New options will appear here as units become available.
@@ -96,66 +161,11 @@ export default function ListingsGrid({ listings }: ListingsGridProps) {
               </div>
             ) : (
               <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 list-none">
-                {filtered.map((listing, index) => {
-                  const cover = listingCover(listing.images);
-                  return (
-                    <li key={listing.id}>
-                      <Link
-                        href={`/listings/${listing.slug}`}
-                        className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg"
-                      >
-                        <article
-                          aria-labelledby={`listing-title-${listing.id}`}
-                        >
-                          <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-800">
-                            {cover ? (
-                              <ListingMedia
-                                src={cover}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                priority={index < 3}
-                              />
-                            ) : (
-                              <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">
-                                No photo
-                              </div>
-                            )}
-                          </div>
-                          <div className="mt-3 flex items-start gap-3">
-                            <div
-                              className="w-0.5 h-10 flex-shrink-0 rounded-full mt-1"
-                              style={{
-                                backgroundColor: 'var(--color-brand-accent)',
-                              }}
-                              aria-hidden
-                            />
-                            <div>
-                              <h2
-                                id={`listing-title-${listing.id}`}
-                                className="text-lg md:text-xl font-semibold text-[var(--color-almost-white)] leading-snug group-hover:text-brand-accent transition-colors"
-                              >
-                                {listing.title}
-                              </h2>
-                              <p className="mt-1 text-sm text-gray-300 leading-snug">
-                                {listing.address}
-                              </p>
-                              <p className="mt-1 text-sm text-gray-400">
-                                {formatBedsBaths(
-                                  listing.bedrooms,
-                                  listing.bathrooms
-                                )}
-                              </p>
-                              <p className="mt-1 text-base font-medium text-[var(--color-almost-white)]">
-                                {formatPrice(listing.price, listing.type)}
-                              </p>
-                            </div>
-                          </div>
-                        </article>
-                      </Link>
-                    </li>
-                  );
-                })}
+                {filtered.map((listing, index) => (
+                  <li key={listing.id}>
+                    <ListingCard listing={listing} priority={index < 3} />
+                  </li>
+                ))}
               </ul>
             )}
           </div>
