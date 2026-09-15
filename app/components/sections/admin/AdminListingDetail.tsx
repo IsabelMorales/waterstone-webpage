@@ -12,6 +12,7 @@ import {
   mergeFees,
   mergeUnitAmenities,
 } from '@/lib/listing-defaults';
+import { listingTypeLabel } from '@/lib/listing-options';
 import {
   collectAmenityLabels,
   formatFeeAmount,
@@ -298,7 +299,7 @@ export default function AdminListingDetail({
                 Type
               </dt>
               <dd className="mt-1 text-sm text-[var(--color-almost-white)]">
-                {listing.type === 'rent' ? 'Rent' : 'Sale'}
+                {listingTypeLabel(listing.type)}
               </dd>
             </div>
           </dl>

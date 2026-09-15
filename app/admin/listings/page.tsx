@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 import AdminShell from '../../components/sections/admin/AdminShell';
 import AdminListingsTable from '../../components/sections/admin/AdminListingsTable';
 import { requireAdminPageSession } from '@/lib/api/admin-guard';
-import { fetchAdminListings } from '@/lib/api/waterstone';
+import {
+  fetchAdminListings,
+  fetchListingOptions,
+} from '@/lib/api/waterstone';
+import { FALLBACK_LISTING_OPTIONS } from '@/lib/listing-options';
 
 export const metadata: Metadata = {
   title: 'Manage Listings | Waterstone Admin',
@@ -11,11 +15,14 @@ export const metadata: Metadata = {
 
 export default async function AdminListingsPage() {
   const token = await requireAdminPageSession();
-  const listings = await fetchAdminListings(token);
+  const [listings, options] = await Promise.all([
+    fetchAdminListings(token),
+    fetchListingOptions().catch(() => FALLBACK_LISTING_OPTIONS),
+  ]);
 
   return (
     <AdminShell>
-      <AdminListingsTable listings={listings} />
+      <AdminListingsTable listings={listings} options={options} />
     </AdminShell>
   );
 }

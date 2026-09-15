@@ -3,13 +3,15 @@
 import { useEffect, useState } from 'react';
 import type {
   FurnishedStatus,
+  ListingCatalogOptions,
   ListingFeeItem,
   ListingFees,
 } from '@/lib/types/listing';
+import { defaultFeeItem } from '@/lib/listing-defaults';
 import {
-  FURNISHED_STATUS_OPTIONS,
-  defaultFeeItem,
-} from '@/lib/listing-defaults';
+  FALLBACK_LISTING_OPTIONS,
+  furnishedStatusOptions,
+} from '@/lib/listing-options';
 import { formatFeeAmount, formatPrice } from '@/lib/listings-format';
 import { cn } from '@/lib/utils';
 import {
@@ -25,6 +27,7 @@ import { AmenityCheckbox, AmenityRadio } from './AmenityControls';
 
 interface CostsTabProps {
   fields: ListingFormState;
+  options?: ListingCatalogOptions;
   onChange: <K extends keyof ListingFormState>(
     key: K,
     value: ListingFormState[K]
@@ -270,10 +273,24 @@ function FeeEditModal({
 
 export default function CostsTab({
   fields,
+  options = FALLBACK_LISTING_OPTIONS,
   onChange,
   onFeesChange,
 }: CostsTabProps) {
   const [editing, setEditing] = useState<FeeEditTarget | null>(null);
+  const furnishedOptions = furnishedStatusOptions(options);
+
+  function priceHeading() {
+    if (fields.type === 'rent') return 'Rent price';
+    if (fields.type === 'sale') return 'Sale price';
+    return 'Listing price';
+  }
+
+  function priceQuestion() {
+    if (fields.type === 'rent') return "What's the base rent? (required)";
+    if (fields.type === 'sale') return "What's the sale price? (required)";
+    return "What's the listing price? (required)";
+  }
 
   function resolveEditingFee(): ListingFeeItem | null {
     if (!editing) return null;
@@ -335,14 +352,10 @@ export default function CostsTab({
   return (
     <div className="space-y-10">
       <section>
-        <h2 className={adminSectionTitleClassName}>
-          {fields.type === 'rent' ? 'Rent price' : 'Sale price'}
-        </h2>
+        <h2 className={adminSectionTitleClassName}>{priceHeading()}</h2>
         <div className="max-w-sm">
           <label htmlFor="listing-price" className={adminLabelClassName}>
-            {fields.type === 'rent'
-              ? "What's the base rent? (required)"
-              : "What's the sale price? (required)"}
+            {priceQuestion()}
           </label>
           <input
             id="listing-price"
@@ -390,7 +403,7 @@ export default function CostsTab({
             Is this unit offered furnished? (required)
           </legend>
           <div className="flex flex-col gap-3 mt-2">
-            {FURNISHED_STATUS_OPTIONS.map((option) => (
+            {furnishedOptions.map((option) => (
               <AmenityRadio
                 key={option.value}
                 id={`furnished-${option.value}`}

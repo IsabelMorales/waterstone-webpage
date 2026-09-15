@@ -5,17 +5,17 @@ import { useMemo, useState } from 'react';
 import AnimatedOnScroll from '../../common/AnimatedOnScroll';
 import ListingCardHoverGallery from '../../common/ListingCardHoverGallery';
 import ListingTabs from '../../common/ListingTabs';
-import type { Listing, ListingType } from '@/lib/types/listing';
+import type { Listing, ListingCatalogOptions, ListingType } from '@/lib/types/listing';
+import {
+  FALLBACK_LISTING_OPTIONS,
+  listingTypeLabel,
+} from '@/lib/listing-options';
 import { formatBedsBaths, formatPrice } from '@/lib/listings-format';
 
 interface ListingsGridProps {
   listings: Listing[];
+  options?: ListingCatalogOptions;
 }
-
-const TABS: { id: ListingType; label: string }[] = [
-  { id: 'rent', label: 'For rent' },
-  { id: 'sale', label: 'For sale' },
-];
 
 function ListingCard({
   listing,
@@ -75,18 +75,28 @@ function ListingCard({
   );
 }
 
-export default function ListingsGrid({ listings }: ListingsGridProps) {
+export default function ListingsGrid({
+  listings,
+  options = FALLBACK_LISTING_OPTIONS,
+}: ListingsGridProps) {
+  const typeIds = options.types.length
+    ? options.types
+    : FALLBACK_LISTING_OPTIONS.types;
+
   const tabItems = useMemo(
     () =>
-      TABS.map((tab) => ({
-        ...tab,
-        count: listings.filter((l) => l.type === tab.id).length,
-      })).filter((tab) => tab.count > 0),
-    [listings]
+      typeIds
+        .map((id) => ({
+          id,
+          label: listingTypeLabel(id),
+          count: listings.filter((l) => l.type === id).length,
+        }))
+        .filter((tab) => tab.count > 0),
+    [listings, typeIds]
   );
 
   const [activeTab, setActiveTab] = useState<ListingType>(
-    () => tabItems[0]?.id || 'rent'
+    () => tabItems[0]?.id || typeIds[0] || 'rent'
   );
 
   const resolvedTab =
@@ -102,7 +112,9 @@ export default function ListingsGrid({ listings }: ListingsGridProps) {
   const emptyCopy =
     resolvedTab === 'rent'
       ? 'No rentals available right now'
-      : 'No sales available right now';
+      : resolvedTab === 'sale'
+        ? 'No sales available right now'
+        : `No ${listingTypeLabel(resolvedTab).toLowerCase()} listings available right now`;
 
   return (
     <section className="w-full py-12 md:py-16 bg-brand-dark">

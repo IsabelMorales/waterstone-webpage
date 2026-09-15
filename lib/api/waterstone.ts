@@ -1,9 +1,11 @@
 import type {
   Listing,
+  ListingOptionsResponse,
   ListingResponse,
   ListingsListResponse,
   LoginResponse,
   AuthUser,
+  ListingCatalogOptions,
 } from '@/lib/types/listing';
 import type {
   AdminUser,
@@ -109,6 +111,16 @@ export async function fetchListings(query?: ListingQuery): Promise<Listing[]> {
   );
   const data = await parseJson<ListingsListResponse>(response);
   return data.listings;
+}
+
+export async function fetchListingOptions(): Promise<ListingCatalogOptions> {
+  assertConfig();
+  const response = await fetch(`${API_BASE}/api/listings/options`, {
+    headers: clientHeaders(),
+    cache: 'no-store',
+  });
+  const data = await parseJson<ListingOptionsResponse>(response);
+  return data.options;
 }
 
 export async function fetchListingBySlug(slug: string): Promise<Listing> {

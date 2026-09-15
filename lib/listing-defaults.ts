@@ -58,7 +58,7 @@ export function defaultFees(): ListingFees {
 
 export function defaultRentInfo(): ListingRentInfo {
   return {
-    marketAs: 'Rental Unit',
+    marketAs: 'Rental',
     dateAvailable: null,
     shortTermAllowed: false,
   };

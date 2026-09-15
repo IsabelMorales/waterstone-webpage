@@ -1,20 +1,24 @@
 'use client';
 
-import type { ListingRentInfo, ListingRooms, ListingUnitAmenities } from '@/lib/types/listing';
+import type { ListingRentInfo, ListingRooms, ListingUnitAmenities, ListingCatalogOptions } from '@/lib/types/listing';
 import { UNIT_AMENITY_LABELS } from '@/lib/listing-defaults';
+import { FALLBACK_LISTING_OPTIONS } from '@/lib/listing-options';
 import { toIsoDateValue, toUsDateDisplay } from '@/lib/listings-format';
 import { cn } from '@/lib/utils';
+import SelectChevron from '../SelectChevron';
 import {
   adminInputClassName,
   adminLabelClassName,
   adminNumberClassName,
   adminSectionTitleClassName,
+  adminSelectClassName,
 } from '../admin-ui';
 import { AmenityCheckbox, AmenityGroup } from './AmenityControls';
 import type { ListingFormState } from './form-state';
 
 interface UnitTabProps {
   fields: ListingFormState;
+  options?: ListingCatalogOptions;
   onRentInfoChange: (rentInfo: ListingRentInfo) => void;
   onRoomsChange: (rooms: ListingRooms) => void;
   onAmenitiesChange: (amenities: ListingUnitAmenities) => void;
@@ -26,11 +30,15 @@ function numValue(value: number | null | undefined): string {
 
 export default function UnitTab({
   fields,
+  options = FALLBACK_LISTING_OPTIONS,
   onRentInfoChange,
   onRoomsChange,
   onAmenitiesChange,
 }: UnitTabProps) {
   const { rentInfo, rooms, unitAmenities } = fields;
+  const marketAsOptions = options.marketAs.length
+    ? options.marketAs
+    : FALLBACK_LISTING_OPTIONS.marketAs;
 
   function setRoom<K extends keyof ListingRooms>(
     key: K,
@@ -54,15 +62,27 @@ export default function UnitTab({
             <label htmlFor="rent-market-as" className={adminLabelClassName}>
               Market as
             </label>
-            <input
-              id="rent-market-as"
-              value={rentInfo.marketAs}
-              onChange={(e) =>
-                onRentInfoChange({ ...rentInfo, marketAs: e.target.value })
-              }
-              className={adminInputClassName}
-              placeholder="Rental Unit"
-            />
+            <div className="relative">
+              <select
+                id="rent-market-as"
+                value={
+                  marketAsOptions.includes(rentInfo.marketAs)
+                    ? rentInfo.marketAs
+                    : marketAsOptions[0] || ''
+                }
+                onChange={(e) =>
+                  onRentInfoChange({ ...rentInfo, marketAs: e.target.value })
+                }
+                className={adminSelectClassName}
+              >
+                {marketAsOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <SelectChevron />
+            </div>
           </div>
           <div className="space-y-4">
             <div>

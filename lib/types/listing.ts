@@ -1,4 +1,4 @@
-export type ListingType = 'rent' | 'sale';
+export type ListingType = 'rent' | 'sale' | 'commercial';
 
 export type ListingStatus =
   | 'available'
@@ -10,6 +10,26 @@ export type FurnishedStatus =
   | 'furnished'
   | 'not_furnished'
   | 'offered_as_either';
+
+/** Catalog enums from GET /api/listings/options */
+export interface ListingCatalogOptions {
+  types: ListingType[];
+  statusesByType: Record<string, ListingStatus[]>;
+  furnishedStatuses: FurnishedStatus[];
+  marketAs: string[];
+  defaults: {
+    status: ListingStatus;
+    furnishedStatus: FurnishedStatus;
+    marketAs: string;
+    hasConcession: boolean;
+  };
+}
+
+export interface ListingOptionsResponse {
+  success: boolean;
+  message?: string;
+  options: ListingCatalogOptions;
+}
 
 export interface ListingHomeFeature {
   label: string;

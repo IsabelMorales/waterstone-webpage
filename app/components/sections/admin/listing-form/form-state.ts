@@ -3,6 +3,7 @@ import type {
   Listing,
   ListingBuildingAmenities,
   ListingBuildingFacts,
+  ListingCatalogOptions,
   ListingFees,
   ListingRentInfo,
   ListingRooms,
@@ -18,6 +19,10 @@ import {
   mergeUnitAmenities,
   roomsFromListing,
 } from '@/lib/listing-defaults';
+import {
+  FALLBACK_LISTING_OPTIONS,
+  statusesForType as statusesForTypeFromOptions,
+} from '@/lib/listing-options';
 import { toIsoDateValue, toUsDateDisplay } from '@/lib/listings-format';
 
 export type ListingFormTabId =
@@ -55,28 +60,39 @@ export interface ListingFormState {
   videos: string[];
 }
 
-export function statusesForType(type: ListingType): ListingStatus[] {
-  return type === 'rent'
-    ? ['available', 'pending', 'rented']
-    : ['available', 'pending', 'sold'];
+export function statusesForType(
+  type: ListingType,
+  options: ListingCatalogOptions = FALLBACK_LISTING_OPTIONS
+): ListingStatus[] {
+  return statusesForTypeFromOptions(type, options);
 }
 
-export function toFormState(listing?: Listing): ListingFormState {
+export function toFormState(
+  listing?: Listing,
+  options: ListingCatalogOptions = FALLBACK_LISTING_OPTIONS
+): ListingFormState {
   const rooms = roomsFromListing(listing);
+  const defaults = options.defaults;
+  const defaultType = (options.types[0] || 'rent') as ListingType;
+
   return {
-    type: listing?.type || 'rent',
+    type: listing?.type || defaultType,
     title: listing?.title || '',
     address: listing?.address || '',
     borough: listing?.borough || '',
     neighborhood: listing?.neighborhood || '',
     price: listing?.price != null ? String(listing.price) : '',
     description: listing?.description || rooms.unitDescription || '',
-    status: listing?.status || 'available',
-    hasConcession: Boolean(listing?.hasConcession),
-    furnishedStatus: listing?.furnishedStatus || 'not_furnished',
+    status: listing?.status || defaults.status,
+    hasConcession:
+      listing?.hasConcession != null
+        ? Boolean(listing.hasConcession)
+        : defaults.hasConcession,
+    furnishedStatus: listing?.furnishedStatus || defaults.furnishedStatus,
     fees: mergeFees(listing?.fees),
     rentInfo: {
       ...defaultRentInfo(),
+      marketAs: defaults.marketAs,
       ...listing?.rentInfo,
       dateAvailable: toUsDateDisplay(listing?.rentInfo?.dateAvailable) || null,
     },
@@ -91,10 +107,11 @@ export function toFormState(listing?: Listing): ListingFormState {
   };
 }
 
-export function buildWritePayload(fields: ListingFormState) {
-  const videos = fields.videos
-    .map((v) => v.trim())
-    .filter(Boolean);
+export function buildWritePayload(
+  fields: ListingFormState,
+  options: ListingCatalogOptions = FALLBACK_LISTING_OPTIONS
+) {
+  const videos = fields.videos.map((v) => v.trim()).filter(Boolean);
 
   const bathrooms =
     Number(fields.rooms.fullBaths || 0) +
@@ -125,7 +142,10 @@ export function buildWritePayload(fields: ListingFormState) {
     rentInfo: {
       ...fields.rentInfo,
       dateAvailable: toIsoDateValue(fields.rentInfo.dateAvailable),
-      marketAs: fields.rentInfo.marketAs.trim() || 'Rental Unit',
+      marketAs:
+        fields.rentInfo.marketAs.trim() ||
+        options.defaults.marketAs ||
+        'Rental',
     },
     rooms: {
       ...fields.rooms,

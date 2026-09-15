@@ -1,23 +1,15 @@
 import { cn } from '@/lib/utils';
 import type { ListingStatus, ListingType } from '@/lib/types/listing';
+import {
+  listingStatusLabel,
+  listingTypeLabel,
+} from '@/lib/listing-options';
 
 interface ListingBadgeProps {
   type?: ListingType;
   status?: ListingStatus;
   className?: string;
 }
-
-const typeLabel: Record<ListingType, string> = {
-  rent: 'For rent',
-  sale: 'For sale',
-};
-
-const statusLabel: Record<ListingStatus, string> = {
-  available: 'Available',
-  pending: 'Pending',
-  rented: 'Rented',
-  sold: 'Sold',
-};
 
 export function ListingTypeBadge({
   type,
@@ -34,7 +26,7 @@ export function ListingTypeBadge({
         className
       )}
     >
-      {typeLabel[type]}
+      {listingTypeLabel(type)}
     </span>
   );
 }
@@ -61,7 +53,7 @@ export function ListingStatusBadge({
         className
       )}
     >
-      {statusLabel[status]}
+      {listingStatusLabel(status)}
     </span>
   );
 }

@@ -2,7 +2,11 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import type { Listing, ListingType } from '@/lib/types/listing';
+import type { Listing, ListingCatalogOptions, ListingType } from '@/lib/types/listing';
+import {
+  FALLBACK_LISTING_OPTIONS,
+  listingTypeLabel,
+} from '@/lib/listing-options';
 import {
   formatBedsBaths,
   formatPrice,
@@ -16,17 +20,17 @@ import { adminPrimaryBtnClassName } from './admin-ui';
 
 interface AdminListingsTableProps {
   listings: Listing[];
+  options?: ListingCatalogOptions;
 }
-
-const TABS: { id: ListingType | 'all'; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'rent', label: 'For rent' },
-  { id: 'sale', label: 'For sale' },
-];
 
 export default function AdminListingsTable({
   listings,
+  options = FALLBACK_LISTING_OPTIONS,
 }: AdminListingsTableProps) {
+  const typeIds = options.types.length
+    ? options.types
+    : FALLBACK_LISTING_OPTIONS.types;
+
   const [activeTab, setActiveTab] = useState<ListingType | 'all'>('all');
 
   const filtered = useMemo(
@@ -38,15 +42,19 @@ export default function AdminListingsTable({
   );
 
   const tabItems = useMemo(
-    () =>
-      TABS.map((tab) => ({
-        ...tab,
-        count:
-          tab.id === 'all'
-            ? listings.length
-            : listings.filter((l) => l.type === tab.id).length,
+    () => [
+      {
+        id: 'all' as const,
+        label: 'All',
+        count: listings.length,
+      },
+      ...typeIds.map((id) => ({
+        id,
+        label: listingTypeLabel(id),
+        count: listings.filter((l) => l.type === id).length,
       })),
-    [listings]
+    ],
+    [listings, typeIds]
   );
 
   return (

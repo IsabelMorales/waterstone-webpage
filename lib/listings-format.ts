@@ -21,7 +21,10 @@ export function formatFeeMeta(fee: {
   return parts.join(' · ');
 }
 
-export function formatPrice(price: number, type: 'rent' | 'sale'): string {
+export function formatPrice(
+  price: number,
+  type: 'rent' | 'sale' | 'commercial' | string
+): string {
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

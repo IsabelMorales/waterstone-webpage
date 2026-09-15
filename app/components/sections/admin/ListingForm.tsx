@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { FormEvent, useRef, useState } from 'react';
-import type { Listing } from '@/lib/types/listing';
+import type { Listing, ListingCatalogOptions } from '@/lib/types/listing';
+import { FALLBACK_LISTING_OPTIONS } from '@/lib/listing-options';
 import { cn } from '@/lib/utils';
 import ChevronLeft from '../../common/ChevronLeft';
 import {
@@ -28,6 +29,7 @@ import {
 interface ListingFormProps {
   mode: 'create' | 'edit';
   listing?: Listing;
+  options?: ListingCatalogOptions;
 }
 
 function fileKey(file: File) {
@@ -60,10 +62,14 @@ function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
 
 const FLOOR_PLAN_MAX_BYTES = 10 * 1024 * 1024;
 
-export default function ListingForm({ mode, listing }: ListingFormProps) {
+export default function ListingForm({
+  mode,
+  listing,
+  options = FALLBACK_LISTING_OPTIONS,
+}: ListingFormProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [fields, setFields] = useState<ListingFormState>(() =>
-    toFormState(listing)
+    toFormState(listing, options)
   );
   const [activeTab, setActiveTab] = useState<ListingFormTabId>('basics');
   const [existingImages, setExistingImages] = useState<string[]>(
@@ -103,9 +109,12 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
     setFields((prev) => {
       const next = { ...prev, [key]: value };
       if (key === 'type') {
-        const allowed = statusesForType(value as ListingFormState['type']);
+        const allowed = statusesForType(
+          value as ListingFormState['type'],
+          options
+        );
         if (!allowed.includes(next.status)) {
-          next.status = 'available';
+          next.status = options.defaults.status || 'available';
         }
       }
       return next;
@@ -122,7 +131,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
     setError('');
 
     try {
-      const payload = buildWritePayload(fields);
+      const payload = buildWritePayload(fields, options);
       const hasImageFiles = newImageFiles.length > 0;
       const hasFloorPlanFiles = newFloorPlanFiles.length > 0;
       const keptImages = existingImages.filter(
@@ -274,7 +283,11 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
           noValidate
         >
           {activeTab === 'basics' && (
-            <BasicsTab fields={fields} onChange={updateField} />
+            <BasicsTab
+              fields={fields}
+              options={options}
+              onChange={updateField}
+            />
           )}
           {activeTab === 'building' && (
             <BuildingTab
@@ -287,6 +300,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
           {activeTab === 'unit' && (
             <UnitTab
               fields={fields}
+              options={options}
               onRentInfoChange={(rentInfo) => updateField('rentInfo', rentInfo)}
               onRoomsChange={(rooms) => updateField('rooms', rooms)}
               onAmenitiesChange={(unitAmenities) =>
@@ -297,6 +311,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
           {activeTab === 'costs' && (
             <CostsTab
               fields={fields}
+              options={options}
               onChange={updateField}
               onFeesChange={(fees) => updateField('fees', fees)}
             />
