@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import ListingMedia from './ListingMedia';
 
@@ -15,6 +15,8 @@ interface ListingImageLightboxProps {
   onNavigate?: (index: number) => void;
 }
 
+const SWIPE_THRESHOLD_PX = 48;
+
 export default function ListingImageLightbox({
   src,
   alt = '',
@@ -24,8 +26,14 @@ export default function ListingImageLightbox({
   activeIndex = 0,
   onNavigate,
 }: ListingImageLightboxProps) {
-  const hasNav =
-    Boolean(images && images.length > 1 && onNavigate);
+  const hasNav = Boolean(images && images.length > 1 && onNavigate);
+  const [dragOffset, setDragOffset] = useState(0);
+  const pointerRef = useRef<{
+    id: number;
+    startX: number;
+    startY: number;
+    moved: boolean;
+  } | null>(null);
 
   const goPrev = useCallback(() => {
     if (!hasNav || !images || !onNavigate) return;
@@ -55,6 +63,57 @@ export default function ListingImageLightbox({
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [open, onClose, goPrev, goNext]);
+
+  function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 || !hasNav) return;
+    pointerRef.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const state = pointerRef.current;
+    if (!state || state.id !== event.pointerId) return;
+    const dx = event.clientX - state.startX;
+    const dy = event.clientY - state.startY;
+    if (!state.moved && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      state.moved = true;
+    }
+    if (Math.abs(dx) > Math.abs(dy)) {
+      setDragOffset(dx);
+    }
+  }
+
+  function onPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const state = pointerRef.current;
+    if (!state || state.id !== event.pointerId) return;
+    const dx = event.clientX - state.startX;
+    pointerRef.current = null;
+    setDragOffset(0);
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // ignore
+    }
+    if (hasNav && Math.abs(dx) >= SWIPE_THRESHOLD_PX) {
+      if (dx < 0) goNext();
+      else goPrev();
+    }
+  }
+
+  function onPointerCancel(event: React.PointerEvent<HTMLDivElement>) {
+    pointerRef.current = null;
+    setDragOffset(0);
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // ignore
+    }
+  }
 
   if (!open) return null;
 
@@ -122,19 +181,37 @@ export default function ListingImageLightbox({
 
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4 sm:p-8">
         <div
-          className="pointer-events-auto relative flex max-h-full max-w-full items-center justify-center"
+          className={cn(
+            'pointer-events-auto relative flex max-h-full max-w-full items-center justify-center touch-pan-y',
+            hasNav && 'cursor-grab active:cursor-grabbing'
+          )}
           onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
           role="presentation"
         >
-          <ListingMedia
-            src={src}
-            alt={alt}
-            width={1920}
-            height={1080}
-            priority
-            className="max-h-[calc(100dvh-2rem)] max-w-[calc(100vw-2rem)] h-auto w-auto select-none object-contain sm:max-h-[calc(100dvh-4rem)] sm:max-w-[calc(100vw-4rem)]"
-          />
+          <div
+            className={cn(
+              'will-change-transform',
+              dragOffset === 0 && 'transition-transform duration-200 ease-out'
+            )}
+            style={{
+              transform: dragOffset
+                ? `translateX(${dragOffset * 0.35}px)`
+                : undefined,
+            }}
+          >
+            <ListingMedia
+              src={src}
+              alt={alt}
+              width={1920}
+              height={1080}
+              priority
+              className="max-h-[calc(100dvh-2rem)] max-w-[calc(100vw-2rem)] h-auto w-auto select-none object-contain sm:max-h-[calc(100dvh-4rem)] sm:max-w-[calc(100vw-4rem)] pointer-events-none"
+            />
+          </div>
         </div>
       </div>
     </div>

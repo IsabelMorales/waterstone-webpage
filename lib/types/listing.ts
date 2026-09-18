@@ -192,6 +192,8 @@ export interface Listing {
   lat: number | null;
   lng: number | null;
   status: ListingStatus;
+  /** Lower numbers appear first in the public catalog. */
+  sortOrder?: number | null;
   createdAt: number;
   updatedAt: number;
 }

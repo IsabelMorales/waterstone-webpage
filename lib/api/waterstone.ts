@@ -252,6 +252,21 @@ export async function deleteListing(token: string, id: string): Promise<void> {
   await parseJson<{ success: boolean }>(response);
 }
 
+export async function reorderListings(
+  token: string,
+  orderedIds: string[]
+): Promise<Listing[]> {
+  assertConfig();
+  const response = await fetch(`${API_BASE}/api/listings/reorder`, {
+    method: 'PUT',
+    headers: adminHeaders(token, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ orderedIds }),
+    cache: 'no-store',
+  });
+  const data = await parseJson<ListingsListResponse>(response);
+  return data.listings;
+}
+
 export function toErrorResponse(err: unknown) {
   if (err instanceof WaterstoneApiError) {
     return {

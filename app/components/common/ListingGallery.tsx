@@ -15,9 +15,12 @@ interface ListingGalleryProps {
   size?: 'default' | 'large';
 }
 
+const SWIPE_THRESHOLD_PX = 48;
+
 /**
  * Real-estate style gallery: full-width hero with overlay arrows + thumbnail strip.
  * Supports image URLs and PDF floor plans in the same sequence.
+ * Main frame: swipe/drag to navigate; tap to open lightbox.
  */
 export default function ListingGallery({
   images,
@@ -28,7 +31,15 @@ export default function ListingGallery({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [thumbFade, setThumbFade] = useState({ left: false, right: false });
+  const [dragOffset, setDragOffset] = useState(0);
   const thumbStripRef = useRef<HTMLDivElement>(null);
+  const pointerRef = useRef<{
+    id: number;
+    startX: number;
+    startY: number;
+    moved: boolean;
+  } | null>(null);
+
   const activeImage = images[activeIndex] || null;
   const activeIsPdf = Boolean(activeImage && isPdfUrl(activeImage));
   const isLarge = size === 'large';
@@ -86,6 +97,73 @@ export default function ListingGallery({
     };
   }, [hasMultiple, images.length, updateThumbFade]);
 
+  function openActive() {
+    if (activeIsPdf) setPdfOpen(true);
+    else setLightboxOpen(true);
+  }
+
+  function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0) return;
+    pointerRef.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const state = pointerRef.current;
+    if (!state || state.id !== event.pointerId) return;
+
+    const dx = event.clientX - state.startX;
+    const dy = event.clientY - state.startY;
+
+    if (!state.moved && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      state.moved = true;
+    }
+
+    if (hasMultiple && Math.abs(dx) > Math.abs(dy)) {
+      setDragOffset(dx);
+    }
+  }
+
+  function onPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const state = pointerRef.current;
+    if (!state || state.id !== event.pointerId) return;
+
+    const dx = event.clientX - state.startX;
+    pointerRef.current = null;
+    setDragOffset(0);
+
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // already released
+    }
+
+    if (hasMultiple && Math.abs(dx) >= SWIPE_THRESHOLD_PX) {
+      if (dx < 0) goNext();
+      else goPrev();
+      return;
+    }
+
+    if (!state.moved) {
+      openActive();
+    }
+  }
+
+  function onPointerCancel(event: React.PointerEvent<HTMLDivElement>) {
+    pointerRef.current = null;
+    setDragOffset(0);
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // ignore
+    }
+  }
+
   if (!images.length) {
     return (
       <div
@@ -110,54 +188,84 @@ export default function ListingGallery({
 
   const thumbWidthClass = isLarge ? 'w-36 sm:w-40' : 'w-32 sm:w-36';
 
-  function openActive() {
-    if (activeIsPdf) setPdfOpen(true);
-    else setLightboxOpen(true);
-  }
-
   return (
     <div className={className}>
       <div className="relative w-full">
-        <button
-          type="button"
-          onClick={openActive}
+        <div
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              openActive();
+            }
+            if (hasMultiple && event.key === 'ArrowLeft') {
+              event.preventDefault();
+              goPrev();
+            }
+            if (hasMultiple && event.key === 'ArrowRight') {
+              event.preventDefault();
+              goNext();
+            }
+          }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
           className={cn(
             'relative aspect-video w-full overflow-hidden rounded-lg border border-gray-700/80 bg-gray-800 text-left',
-            'cursor-zoom-in',
+            'touch-pan-y select-none',
+            hasMultiple ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
             isLarge && 'min-h-[16rem] sm:min-h-[20rem] lg:min-h-[24rem]'
           )}
           aria-label={
-            activeIsPdf ? 'Open floor plan PDF' : 'Open photo at full size'
+            activeIsPdf
+              ? 'Floor plan. Drag to change slide or tap to open PDF.'
+              : hasMultiple
+                ? 'Listing photos. Drag to change photo or tap to enlarge.'
+                : 'Open photo at full size'
           }
         >
-          {activeIsPdf ? (
-            <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-b from-gray-800/90 to-gray-900 px-6 text-center">
-              <FileText
-                className="h-12 w-12 text-brand-accent"
-                aria-hidden
+          <div
+            className={cn(
+              'absolute inset-0 will-change-transform',
+              dragOffset === 0 && 'transition-transform duration-200 ease-out'
+            )}
+            style={{
+              transform: dragOffset
+                ? `translateX(${dragOffset * 0.35}px)`
+                : undefined,
+            }}
+          >
+            {activeIsPdf ? (
+              <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-b from-gray-800/90 to-gray-900 px-6 text-center">
+                <FileText
+                  className="h-12 w-12 text-brand-accent"
+                  aria-hidden
+                />
+                <span className="text-base font-semibold text-[var(--color-almost-white)]">
+                  Floor plan PDF
+                </span>
+                <span className="text-sm text-brand-accent underline">
+                  View PDF
+                </span>
+              </span>
+            ) : (
+              <ListingMedia
+                src={activeImage!}
+                fill
+                priority
+                className="object-cover pointer-events-none"
+                sizes={
+                  isLarge
+                    ? '(max-width: 1024px) 100vw, 55vw'
+                    : '(max-width: 1024px) 100vw, 50vw'
+                }
               />
-              <span className="text-base font-semibold text-[var(--color-almost-white)]">
-                Floor plan PDF
-              </span>
-              <span className="text-sm text-brand-accent underline">
-                View PDF
-              </span>
-            </span>
-          ) : (
-            <ListingMedia
-              src={activeImage!}
-              fill
-              priority
-              className="object-cover"
-              sizes={
-                isLarge
-                  ? '(max-width: 1024px) 100vw, 55vw'
-                  : '(max-width: 1024px) 100vw, 50vw'
-              }
-            />
-          )}
-        </button>
+            )}
+          </div>
+        </div>
 
         {hasMultiple && (
           <>
@@ -271,10 +379,7 @@ export default function ListingGallery({
         open={lightboxOpen && !activeIsPdf}
         onClose={() => setLightboxOpen(false)}
         images={imageOnly}
-        activeIndex={Math.max(
-          0,
-          imageOnly.indexOf(activeImage || '')
-        )}
+        activeIndex={Math.max(0, imageOnly.indexOf(activeImage || ''))}
         onNavigate={(nextIndex) => {
           const url = imageOnly[nextIndex];
           if (!url) return;

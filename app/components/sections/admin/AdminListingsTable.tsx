@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type DragEvent } from 'react';
+import { GripVertical } from 'lucide-react';
 import type { Listing, ListingCatalogOptions, ListingType } from '@/lib/types/listing';
 import {
   FALLBACK_LISTING_OPTIONS,
@@ -23,15 +24,38 @@ interface AdminListingsTableProps {
   options?: ListingCatalogOptions;
 }
 
+function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
+  if (
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= items.length ||
+    toIndex >= items.length
+  ) {
+    return items;
+  }
+  const next = [...items];
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, item);
+  return next;
+}
+
 export default function AdminListingsTable({
-  listings,
+  listings: initialListings,
   options = FALLBACK_LISTING_OPTIONS,
 }: AdminListingsTableProps) {
   const typeIds = options.types.length
     ? options.types
     : FALLBACK_LISTING_OPTIONS.types;
 
+  const [listings, setListings] = useState(initialListings);
   const [activeTab, setActiveTab] = useState<ListingType | 'all'>('all');
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [orderMessage, setOrderMessage] = useState('');
+  const [orderError, setOrderError] = useState('');
+
+  const canReorder = activeTab === 'all';
 
   const filtered = useMemo(
     () =>
@@ -57,6 +81,60 @@ export default function AdminListingsTable({
     [listings, typeIds]
   );
 
+  async function persistOrder(nextListings: Listing[]) {
+    setSavingOrder(true);
+    setOrderError('');
+    setOrderMessage('');
+    try {
+      const response = await fetch('/api/admin/listings/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderedIds: nextListings.map((listing) => listing.id),
+        }),
+      });
+      const data = (await response.json()) as {
+        message?: string;
+        listings?: Listing[];
+      };
+      if (!response.ok) {
+        setOrderError(data.message || 'Could not save order.');
+        setListings(initialListings);
+        return;
+      }
+      if (data.listings) setListings(data.listings);
+      setOrderMessage('Display order saved.');
+    } catch {
+      setOrderError('Could not save order.');
+      setListings(initialListings);
+    } finally {
+      setSavingOrder(false);
+    }
+  }
+
+  function handleDragStart(index: number) {
+    if (!canReorder || savingOrder) return;
+    setDragIndex(index);
+    setOrderMessage('');
+    setOrderError('');
+  }
+
+  function handleDragOver(event: DragEvent) {
+    if (!canReorder) return;
+    event.preventDefault();
+  }
+
+  function handleDrop(toIndex: number) {
+    if (!canReorder || dragIndex == null || dragIndex === toIndex) {
+      setDragIndex(null);
+      return;
+    }
+    const next = moveItem(listings, dragIndex, toIndex);
+    setDragIndex(null);
+    setListings(next);
+    void persistOrder(next);
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
@@ -74,12 +152,30 @@ export default function AdminListingsTable({
               {listings.length} listing{listings.length === 1 ? '' : 's'} in the
               catalog · tap a card to manage
             </p>
+            {canReorder && listings.length > 1 && (
+              <p className="mt-1 text-xs text-gray-500">
+                Drag cards to set the public catalog order
+                {savingOrder ? ' · saving…' : ''}.
+              </p>
+            )}
           </div>
         </div>
         <Link href="/admin/listings/new" className={adminPrimaryBtnClassName}>
           New listing
         </Link>
       </div>
+
+      {(orderMessage || orderError) && (
+        <p
+          className={cn(
+            'text-sm',
+            orderError ? 'text-red-400' : 'text-emerald-300'
+          )}
+          role={orderError ? 'alert' : 'status'}
+        >
+          {orderError || orderMessage}
+        </p>
+      )}
 
       <ListingTabs
         tabs={tabItems}
@@ -114,50 +210,81 @@ export default function AdminListingsTable({
             <p className="text-gray-400 text-sm">No listings in this tab.</p>
           ) : (
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 list-none">
-              {filtered.map((listing) => {
+              {filtered.map((listing, index) => {
                 const cover = listingCover(listing.images);
+                const globalIndex = listings.findIndex(
+                  (item) => item.id === listing.id
+                );
                 return (
-                  <li key={listing.id}>
-                    <Link
-                      href={`/admin/listings/${listing.id}`}
-                      className="group block border border-gray-700/80 rounded-lg bg-gray-800/40 overflow-hidden transition-colors hover:border-brand-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
-                    >
-                      <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-gray-900">
-                        {cover ? (
-                          <ListingMedia
-                            src={cover}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500">
-                            No photo
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-5">
-                        <ListingBadges
-                          type={listing.type}
-                          status={listing.status}
-                        />
-                        <h2 className="mt-3 text-lg font-semibold text-[var(--color-almost-white)] leading-snug group-hover:text-brand-accent transition-colors">
-                          {listing.title}
-                        </h2>
-                        <p className="mt-1 text-sm text-gray-300 leading-snug">
-                          {listing.address}
-                        </p>
-                        <p className="mt-1 text-sm text-gray-400">
-                          {formatBedsBaths(
-                            listing.bedrooms,
-                            listing.bathrooms
+                  <li
+                    key={listing.id}
+                    draggable={canReorder && !savingOrder}
+                    onDragStart={() => handleDragStart(globalIndex)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(globalIndex)}
+                    className={cn(
+                      canReorder && 'cursor-grab active:cursor-grabbing',
+                      dragIndex === globalIndex && 'opacity-60 ring-2 ring-brand-accent rounded-lg'
+                    )}
+                  >
+                    <div className="relative group border border-gray-700/80 rounded-lg bg-gray-800/40 overflow-hidden transition-colors hover:border-brand-accent/60">
+                      {canReorder && (
+                        <span className="pointer-events-none absolute left-2 top-2 z-10 rounded bg-black/55 p-1 text-gray-300">
+                          <GripVertical className="h-4 w-4" />
+                        </span>
+                      )}
+                      <Link
+                        href={`/admin/listings/${listing.id}`}
+                        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                        draggable={false}
+                        onClick={(event) => {
+                          if (dragIndex != null) {
+                            event.preventDefault();
+                          }
+                        }}
+                      >
+                        <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-gray-900">
+                          {cover ? (
+                            <ListingMedia
+                              src={cover}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500">
+                              No photo
+                            </div>
                           )}
-                        </p>
-                        <p className="mt-2 text-base font-medium text-[var(--color-almost-white)]">
-                          {formatPrice(listing.price, listing.type)}
-                        </p>
-                      </div>
-                    </Link>
+                          {canReorder && (
+                            <span className="absolute bottom-2 right-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-gray-200">
+                              #{index + 1}
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-5">
+                          <ListingBadges
+                            type={listing.type}
+                            status={listing.status}
+                          />
+                          <h2 className="mt-3 text-lg font-semibold text-[var(--color-almost-white)] leading-snug group-hover:text-brand-accent transition-colors">
+                            {listing.title}
+                          </h2>
+                          <p className="mt-1 text-sm text-gray-300 leading-snug">
+                            {listing.address}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-400">
+                            {formatBedsBaths(
+                              listing.bedrooms,
+                              listing.bathrooms
+                            )}
+                          </p>
+                          <p className="mt-2 text-base font-medium text-[var(--color-almost-white)]">
+                            {formatPrice(listing.price, listing.type)}
+                          </p>
+                        </div>
+                      </Link>
+                    </div>
                   </li>
                 );
               })}
