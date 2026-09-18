@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, type DragEvent } from 'react';
+import { useMemo, useRef, useState, type DragEvent } from 'react';
 import { GripVertical } from 'lucide-react';
 import type { Listing, ListingCatalogOptions, ListingType } from '@/lib/types/listing';
 import {
@@ -54,8 +54,9 @@ export default function AdminListingsTable({
   const [savingOrder, setSavingOrder] = useState(false);
   const [orderMessage, setOrderMessage] = useState('');
   const [orderError, setOrderError] = useState('');
+  const didDragRef = useRef(false);
 
-  const canReorder = activeTab === 'all';
+  const canReorder = activeTab === 'all' && listings.length > 1;
 
   const filtered = useMemo(
     () =>
@@ -114,6 +115,7 @@ export default function AdminListingsTable({
 
   function handleDragStart(index: number) {
     if (!canReorder || savingOrder) return;
+    didDragRef.current = false;
     setDragIndex(index);
     setOrderMessage('');
     setOrderError('');
@@ -125,14 +127,27 @@ export default function AdminListingsTable({
   }
 
   function handleDrop(toIndex: number) {
-    if (!canReorder || dragIndex == null || dragIndex === toIndex) {
+    if (!canReorder || dragIndex == null) {
       setDragIndex(null);
       return;
     }
+    if (dragIndex === toIndex) {
+      setDragIndex(null);
+      return;
+    }
+    didDragRef.current = true;
     const next = moveItem(listings, dragIndex, toIndex);
     setDragIndex(null);
     setListings(next);
     void persistOrder(next);
+  }
+
+  function handleDragEnd() {
+    setDragIndex(null);
+    // Clear after the click that often follows a completed/cancelled drag.
+    window.setTimeout(() => {
+      didDragRef.current = false;
+    }, 0);
   }
 
   return (
@@ -152,7 +167,7 @@ export default function AdminListingsTable({
               {listings.length} listing{listings.length === 1 ? '' : 's'} in the
               catalog · tap a card to manage
             </p>
-            {canReorder && listings.length > 1 && (
+            {canReorder && (
               <p className="mt-1 text-xs text-gray-500">
                 Drag cards to set the public catalog order
                 {savingOrder ? ' · saving…' : ''}.
@@ -222,9 +237,11 @@ export default function AdminListingsTable({
                     onDragStart={() => handleDragStart(globalIndex)}
                     onDragOver={handleDragOver}
                     onDrop={() => handleDrop(globalIndex)}
+                    onDragEnd={handleDragEnd}
                     className={cn(
                       canReorder && 'cursor-grab active:cursor-grabbing',
-                      dragIndex === globalIndex && 'opacity-60 ring-2 ring-brand-accent rounded-lg'
+                      dragIndex === globalIndex &&
+                        'opacity-60 ring-2 ring-brand-accent rounded-lg'
                     )}
                   >
                     <div className="relative group border border-gray-700/80 rounded-lg bg-gray-800/40 overflow-hidden transition-colors hover:border-brand-accent/60">
@@ -238,8 +255,9 @@ export default function AdminListingsTable({
                         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                         draggable={false}
                         onClick={(event) => {
-                          if (dragIndex != null) {
+                          if (didDragRef.current) {
                             event.preventDefault();
+                            didDragRef.current = false;
                           }
                         }}
                       >
