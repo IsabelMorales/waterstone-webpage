@@ -5,9 +5,9 @@ import { cn } from '@/lib/utils';
 import ListingMedia from './ListingMedia';
 
 /** Delay before the first photo change on hover. */
-const FIRST_SWAP_MS = 350;
+const FIRST_SWAP_MS = 750;
 /** Interval between subsequent photo changes. */
-const CYCLE_MS = 900;
+const CYCLE_MS = 1250;
 
 interface ListingCardHoverGalleryProps {
   images: string[];
@@ -68,7 +68,7 @@ export default function ListingCardHoverGallery({
           <div
             key={`${src}-${i}`}
             className={cn(
-              'absolute inset-0 transition-opacity duration-500 ease-in-out',
+              'absolute inset-0 transition-opacity duration-700 ease-in-out',
               visible ? 'opacity-100' : 'opacity-0'
             )}
             aria-hidden={!visible}
