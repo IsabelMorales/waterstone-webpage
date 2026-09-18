@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import ListingMedia from './ListingMedia';
 
-const CYCLE_MS = 1400;
+/** Delay before the first photo change on hover. */
+const FIRST_SWAP_MS = 350;
+/** Interval between subsequent photo changes. */
+const CYCLE_MS = 900;
 
 interface ListingCardHoverGalleryProps {
   images: string[];
@@ -24,24 +27,29 @@ export default function ListingCardHoverGallery({
 }: ListingCardHoverGalleryProps) {
   const photos = images.filter(Boolean);
   const [index, setIndex] = useState(0);
+  const shownIndex = hovered ? index : 0;
 
   useEffect(() => {
-    if (!hovered) {
-      setIndex(0);
-      return;
-    }
-    if (photos.length <= 1) return;
+    if (!hovered || photos.length <= 1) return;
 
     const reduceMotion =
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion) return;
 
-    const id = window.setInterval(() => {
-      setIndex((current) => (current + 1) % photos.length);
-    }, CYCLE_MS);
+    let intervalId: number | undefined;
+    const firstId = window.setTimeout(() => {
+      setIndex(1 % photos.length);
+      intervalId = window.setInterval(() => {
+        setIndex((current) => (current + 1) % photos.length);
+      }, CYCLE_MS);
+    }, FIRST_SWAP_MS);
 
-    return () => window.clearInterval(id);
+    return () => {
+      window.clearTimeout(firstId);
+      if (intervalId != null) window.clearInterval(intervalId);
+      setIndex(0);
+    };
   }, [hovered, photos.length]);
 
   if (!photos.length) {
@@ -55,12 +63,12 @@ export default function ListingCardHoverGallery({
   return (
     <div className="absolute inset-0">
       {photos.map((src, i) => {
-        const visible = i === index;
+        const visible = i === shownIndex;
         return (
           <div
             key={`${src}-${i}`}
             className={cn(
-              'absolute inset-0 transition-opacity duration-700 ease-in-out',
+              'absolute inset-0 transition-opacity duration-500 ease-in-out',
               visible ? 'opacity-100' : 'opacity-0'
             )}
             aria-hidden={!visible}
@@ -81,7 +89,7 @@ export default function ListingCardHoverGallery({
           className="pointer-events-none absolute bottom-2 right-2 z-10 rounded-full bg-[var(--color-almost-black)]/55 px-2.5 py-0.5 text-[11px] font-medium text-[var(--color-almost-white)] backdrop-blur-sm"
           aria-hidden
         >
-          {index + 1} / {photos.length}
+          {shownIndex + 1} / {photos.length}
         </div>
       )}
     </div>

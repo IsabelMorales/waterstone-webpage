@@ -1,21 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useRef, useState, type DragEvent } from 'react';
+import {
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+  type MutableRefObject,
+} from 'react';
 import { GripVertical } from 'lucide-react';
 import type { Listing, ListingCatalogOptions, ListingType } from '@/lib/types/listing';
 import {
   FALLBACK_LISTING_OPTIONS,
   listingTypeLabel,
 } from '@/lib/listing-options';
-import {
-  formatBedsBaths,
-  formatPrice,
-  listingCover,
-} from '@/lib/listings-format';
+import { formatBedsBaths, formatPrice } from '@/lib/listings-format';
 import { cn } from '@/lib/utils';
-import ListingMedia from '../../common/ListingMedia';
 import ListingBadges from '../../common/ListingBadges';
+import ListingCardHoverGallery from '../../common/ListingCardHoverGallery';
 import ListingTabs from '../../common/ListingTabs';
 import { adminPrimaryBtnClassName } from './admin-ui';
 
@@ -38,6 +40,96 @@ function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
   const [item] = next.splice(fromIndex, 1);
   next.splice(toIndex, 0, item);
   return next;
+}
+
+function AdminListingCard({
+  listing,
+  orderLabel,
+  canReorder,
+  savingOrder,
+  isDragging,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+  didDragRef,
+}: {
+  listing: Listing;
+  orderLabel: number;
+  canReorder: boolean;
+  savingOrder: boolean;
+  isDragging: boolean;
+  onDragStart: () => void;
+  onDragOver: (event: DragEvent) => void;
+  onDrop: () => void;
+  onDragEnd: () => void;
+  didDragRef: MutableRefObject<boolean>;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const images = listing.images?.filter(Boolean) || [];
+
+  return (
+    <li
+      draggable={canReorder && !savingOrder}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+      className={cn(
+        canReorder && 'cursor-grab active:cursor-grabbing',
+        isDragging && 'opacity-60 ring-2 ring-brand-accent rounded-lg'
+      )}
+    >
+      <div
+        className="relative group border border-gray-700/80 rounded-lg bg-gray-800/40 overflow-hidden transition-colors hover:border-brand-accent/60"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {canReorder && (
+          <span className="pointer-events-none absolute left-2 top-2 z-10 rounded bg-black/55 p-1 text-gray-300">
+            <GripVertical className="h-4 w-4" />
+          </span>
+        )}
+        <Link
+          href={`/admin/listings/${listing.id}`}
+          className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+          draggable={false}
+          onClick={(event) => {
+            if (didDragRef.current) {
+              event.preventDefault();
+              didDragRef.current = false;
+            }
+          }}
+          onFocus={() => setHovered(true)}
+          onBlur={() => setHovered(false)}
+        >
+          <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-gray-900">
+            <ListingCardHoverGallery images={images} hovered={hovered} />
+            {canReorder && (
+              <span className="pointer-events-none absolute bottom-2 left-2 z-10 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-gray-200">
+                #{orderLabel}
+              </span>
+            )}
+          </div>
+          <div className="p-5">
+            <ListingBadges type={listing.type} status={listing.status} />
+            <h2 className="mt-3 text-lg font-semibold text-[var(--color-almost-white)] leading-snug group-hover:text-brand-accent transition-colors">
+              {listing.title}
+            </h2>
+            <p className="mt-1 text-sm text-gray-300 leading-snug">
+              {listing.address}
+            </p>
+            <p className="mt-1 text-sm text-gray-400">
+              {formatBedsBaths(listing.bedrooms, listing.bathrooms)}
+            </p>
+            <p className="mt-2 text-base font-medium text-[var(--color-almost-white)]">
+              {formatPrice(listing.price, listing.type)}
+            </p>
+          </div>
+        </Link>
+      </div>
+    </li>
+  );
 }
 
 export default function AdminListingsTable({
@@ -226,84 +318,23 @@ export default function AdminListingsTable({
           ) : (
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 list-none">
               {filtered.map((listing, index) => {
-                const cover = listingCover(listing.images);
                 const globalIndex = listings.findIndex(
                   (item) => item.id === listing.id
                 );
                 return (
-                  <li
+                  <AdminListingCard
                     key={listing.id}
-                    draggable={canReorder && !savingOrder}
+                    listing={listing}
+                    orderLabel={index + 1}
+                    canReorder={canReorder}
+                    savingOrder={savingOrder}
+                    isDragging={dragIndex === globalIndex}
                     onDragStart={() => handleDragStart(globalIndex)}
                     onDragOver={handleDragOver}
                     onDrop={() => handleDrop(globalIndex)}
                     onDragEnd={handleDragEnd}
-                    className={cn(
-                      canReorder && 'cursor-grab active:cursor-grabbing',
-                      dragIndex === globalIndex &&
-                        'opacity-60 ring-2 ring-brand-accent rounded-lg'
-                    )}
-                  >
-                    <div className="relative group border border-gray-700/80 rounded-lg bg-gray-800/40 overflow-hidden transition-colors hover:border-brand-accent/60">
-                      {canReorder && (
-                        <span className="pointer-events-none absolute left-2 top-2 z-10 rounded bg-black/55 p-1 text-gray-300">
-                          <GripVertical className="h-4 w-4" />
-                        </span>
-                      )}
-                      <Link
-                        href={`/admin/listings/${listing.id}`}
-                        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
-                        draggable={false}
-                        onClick={(event) => {
-                          if (didDragRef.current) {
-                            event.preventDefault();
-                            didDragRef.current = false;
-                          }
-                        }}
-                      >
-                        <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-gray-900">
-                          {cover ? (
-                            <ListingMedia
-                              src={cover}
-                              fill
-                              className="object-cover transition-transform duration-300 group-hover:scale-105"
-                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500">
-                              No photo
-                            </div>
-                          )}
-                          {canReorder && (
-                            <span className="absolute bottom-2 right-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-gray-200">
-                              #{index + 1}
-                            </span>
-                          )}
-                        </div>
-                        <div className="p-5">
-                          <ListingBadges
-                            type={listing.type}
-                            status={listing.status}
-                          />
-                          <h2 className="mt-3 text-lg font-semibold text-[var(--color-almost-white)] leading-snug group-hover:text-brand-accent transition-colors">
-                            {listing.title}
-                          </h2>
-                          <p className="mt-1 text-sm text-gray-300 leading-snug">
-                            {listing.address}
-                          </p>
-                          <p className="mt-1 text-sm text-gray-400">
-                            {formatBedsBaths(
-                              listing.bedrooms,
-                              listing.bathrooms
-                            )}
-                          </p>
-                          <p className="mt-2 text-base font-medium text-[var(--color-almost-white)]">
-                            {formatPrice(listing.price, listing.type)}
-                          </p>
-                        </div>
-                      </Link>
-                    </div>
-                  </li>
+                    didDragRef={didDragRef}
+                  />
                 );
               })}
             </ul>
