@@ -15,12 +15,9 @@ interface ListingGalleryProps {
   size?: 'default' | 'large';
 }
 
-const SWIPE_THRESHOLD_PX = 48;
-
 /**
  * Real-estate style gallery: full-width hero with overlay arrows + thumbnail strip.
- * Supports image URLs and PDF floor plans in the same sequence.
- * Main frame: swipe/drag to navigate; tap to open lightbox.
+ * Thumbnail strip supports click-drag / swipe to scroll horizontally.
  */
 export default function ListingGallery({
   images,
@@ -31,14 +28,22 @@ export default function ListingGallery({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [thumbFade, setThumbFade] = useState({ left: false, right: false });
-  const [dragOffset, setDragOffset] = useState(0);
   const thumbStripRef = useRef<HTMLDivElement>(null);
-  const pointerRef = useRef<{
-    id: number;
+  const thumbDragRef = useRef<{
+    active: boolean;
     startX: number;
-    startY: number;
+    scrollLeft: number;
     moved: boolean;
-  } | null>(null);
+    pointerId: number | null;
+    suppressClick: boolean;
+  }>({
+    active: false,
+    startX: 0,
+    scrollLeft: 0,
+    moved: false,
+    pointerId: null,
+    suppressClick: false,
+  });
 
   const activeImage = images[activeIndex] || null;
   const activeIsPdf = Boolean(activeImage && isPdfUrl(activeImage));
@@ -102,66 +107,75 @@ export default function ListingGallery({
     else setLightboxOpen(true);
   }
 
-  function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+  function onThumbPointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (event.button !== 0) return;
-    pointerRef.current = {
-      id: event.pointerId,
+    const strip = thumbStripRef.current;
+    if (!strip) return;
+
+    thumbDragRef.current = {
+      active: true,
       startX: event.clientX,
-      startY: event.clientY,
+      scrollLeft: strip.scrollLeft,
       moved: false,
+      pointerId: event.pointerId,
+      suppressClick: false,
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
+    strip.setPointerCapture(event.pointerId);
   }
 
-  function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
-    const state = pointerRef.current;
-    if (!state || state.id !== event.pointerId) return;
+  function onThumbPointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = thumbDragRef.current;
+    const strip = thumbStripRef.current;
+    if (!drag.active || !strip || drag.pointerId !== event.pointerId) return;
 
-    const dx = event.clientX - state.startX;
-    const dy = event.clientY - state.startY;
-
-    if (!state.moved && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-      state.moved = true;
+    const dx = event.clientX - drag.startX;
+    if (Math.abs(dx) > 6) {
+      drag.moved = true;
+      drag.suppressClick = true;
     }
-
-    if (hasMultiple && Math.abs(dx) > Math.abs(dy)) {
-      setDragOffset(dx);
-    }
+    strip.scrollLeft = drag.scrollLeft - dx;
   }
 
-  function onPointerUp(event: React.PointerEvent<HTMLDivElement>) {
-    const state = pointerRef.current;
-    if (!state || state.id !== event.pointerId) return;
+  function onThumbPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = thumbDragRef.current;
+    const strip = thumbStripRef.current;
+    if (!drag.active || drag.pointerId !== event.pointerId) return;
 
-    const dx = event.clientX - state.startX;
-    pointerRef.current = null;
-    setDragOffset(0);
+    thumbDragRef.current = {
+      ...drag,
+      active: false,
+      pointerId: null,
+    };
 
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // already released
+    if (strip) {
+      try {
+        strip.releasePointerCapture(event.pointerId);
+      } catch {
+        // already released
+      }
     }
 
-    if (hasMultiple && Math.abs(dx) >= SWIPE_THRESHOLD_PX) {
-      if (dx < 0) goNext();
-      else goPrev();
-      return;
-    }
-
-    if (!state.moved) {
-      openActive();
-    }
+    // Clear suppress after the click that follows pointerup.
+    window.setTimeout(() => {
+      thumbDragRef.current.suppressClick = false;
+      thumbDragRef.current.moved = false;
+    }, 0);
   }
 
-  function onPointerCancel(event: React.PointerEvent<HTMLDivElement>) {
-    pointerRef.current = null;
-    setDragOffset(0);
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // ignore
-    }
+  function onThumbPointerCancel() {
+    thumbDragRef.current = {
+      active: false,
+      startX: 0,
+      scrollLeft: 0,
+      moved: false,
+      pointerId: null,
+      suppressClick: false,
+    };
+  }
+
+  function selectThumb(index: number) {
+    if (thumbDragRef.current.suppressClick) return;
+    setActiveIndex(index);
   }
 
   if (!images.length) {
@@ -191,81 +205,46 @@ export default function ListingGallery({
   return (
     <div className={className}>
       <div className="relative w-full">
-        <div
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              openActive();
-            }
-            if (hasMultiple && event.key === 'ArrowLeft') {
-              event.preventDefault();
-              goPrev();
-            }
-            if (hasMultiple && event.key === 'ArrowRight') {
-              event.preventDefault();
-              goNext();
-            }
-          }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerCancel}
+        <button
+          type="button"
+          onClick={openActive}
           className={cn(
             'relative aspect-video w-full overflow-hidden rounded-lg border border-gray-700/80 bg-gray-800 text-left',
-            'touch-pan-y select-none',
-            hasMultiple ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in',
+            'cursor-zoom-in',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
             isLarge && 'min-h-[16rem] sm:min-h-[20rem] lg:min-h-[24rem]'
           )}
           aria-label={
-            activeIsPdf
-              ? 'Floor plan. Drag to change slide or tap to open PDF.'
-              : hasMultiple
-                ? 'Listing photos. Drag to change photo or tap to enlarge.'
-                : 'Open photo at full size'
+            activeIsPdf ? 'Open floor plan PDF' : 'Open photo at full size'
           }
         >
-          <div
-            className={cn(
-              'absolute inset-0 will-change-transform',
-              dragOffset === 0 && 'transition-transform duration-200 ease-out'
-            )}
-            style={{
-              transform: dragOffset
-                ? `translateX(${dragOffset * 0.35}px)`
-                : undefined,
-            }}
-          >
-            {activeIsPdf ? (
-              <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-b from-gray-800/90 to-gray-900 px-6 text-center">
-                <FileText
-                  className="h-12 w-12 text-brand-accent"
-                  aria-hidden
-                />
-                <span className="text-base font-semibold text-[var(--color-almost-white)]">
-                  Floor plan PDF
-                </span>
-                <span className="text-sm text-brand-accent underline">
-                  View PDF
-                </span>
-              </span>
-            ) : (
-              <ListingMedia
-                src={activeImage!}
-                fill
-                priority
-                className="object-cover pointer-events-none"
-                sizes={
-                  isLarge
-                    ? '(max-width: 1024px) 100vw, 55vw'
-                    : '(max-width: 1024px) 100vw, 50vw'
-                }
+          {activeIsPdf ? (
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-b from-gray-800/90 to-gray-900 px-6 text-center">
+              <FileText
+                className="h-12 w-12 text-brand-accent"
+                aria-hidden
               />
-            )}
-          </div>
-        </div>
+              <span className="text-base font-semibold text-[var(--color-almost-white)]">
+                Floor plan PDF
+              </span>
+              <span className="text-sm text-brand-accent underline">
+                View PDF
+              </span>
+            </span>
+          ) : (
+            <ListingMedia
+              src={activeImage!}
+              fill
+              priority
+              className="object-cover"
+              sizes={
+                isLarge
+                  ? '(max-width: 1024px) 100vw, 55vw'
+                  : '(max-width: 1024px) 100vw, 50vw'
+              }
+            />
+          )}
+        </button>
 
         {hasMultiple && (
           <>
@@ -318,13 +297,17 @@ export default function ListingGallery({
 
           <div
             ref={thumbStripRef}
+            onPointerDown={onThumbPointerDown}
+            onPointerMove={onThumbPointerMove}
+            onPointerUp={onThumbPointerUp}
+            onPointerCancel={onThumbPointerCancel}
             className={cn(
               'flex gap-3 overflow-x-auto scroll-smooth py-1',
               '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-              'cursor-grab active:cursor-grabbing'
+              'cursor-grab active:cursor-grabbing touch-pan-x select-none'
             )}
             role="tablist"
-            aria-label="Listing photos"
+            aria-label="Listing photos. Drag to scroll."
           >
             {images.map((src, index) => {
               const pdf = isPdfUrl(src);
@@ -334,7 +317,7 @@ export default function ListingGallery({
                   type="button"
                   role="tab"
                   data-thumb-index={index}
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => selectThumb(index)}
                   className={cn(
                     'relative aspect-video flex-shrink-0 overflow-hidden rounded-lg border-4 transition-colors duration-200',
                     thumbWidthClass,
