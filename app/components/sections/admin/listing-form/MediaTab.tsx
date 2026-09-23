@@ -9,6 +9,7 @@ import {
 import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { isPdfUrl } from '@/lib/listings-format';
+import { formatFileSize } from '@/lib/listing-media-limits';
 import ListingImageLightbox from '../../../common/ListingImageLightbox';
 import ListingMedia from '../../../common/ListingMedia';
 import {
@@ -21,6 +22,7 @@ interface PreviewItem {
   key: string;
   url: string;
   name: string;
+  sizeLabel: string;
 }
 
 interface MediaTabProps {
@@ -34,6 +36,10 @@ interface MediaTabProps {
   onRemoveNewImage: (index: number) => void;
   onMoveNewImage: (fromIndex: number, toIndex: number) => void;
   imageInputKey: number;
+  imageError?: string;
+  imageHint?: string;
+  imagesCompressing?: boolean;
+  imagesBatchLabel?: string;
   existingFloorPlans: string[];
   removeFloorPlans: string[];
   onToggleRemoveFloorPlan: (url: string) => void;
@@ -54,6 +60,7 @@ function useObjectPreviews(files: File[]) {
         key: `${file.name}-${file.size}-${file.lastModified}-${index}`,
         url: URL.createObjectURL(file),
         name: file.name,
+        sizeLabel: formatFileSize(file.size),
       })),
     [files]
   );
@@ -159,6 +166,10 @@ export default function MediaTab({
   onRemoveNewImage,
   onMoveNewImage,
   imageInputKey,
+  imageError = '',
+  imageHint = 'JPG, PNG, WebP or GIF · photos are compressed for upload · max 50 MB total per save',
+  imagesCompressing = false,
+  imagesBatchLabel = '',
   existingFloorPlans,
   removeFloorPlans,
   onToggleRemoveFloorPlan,
@@ -300,12 +311,26 @@ export default function MediaTab({
         <DropZone
           id="listing-images"
           label="Drag and drop photos or browse files"
-          hint="JPG, JPEG, GIF, PNG or WebP · up to 10 · 5 MB each"
+          hint={imageHint}
           accept="image/jpeg,image/png,image/webp,image/gif"
           count={newImageFiles.length}
           inputKey={imageInputKey}
           onChange={onImageFilesChange}
         />
+
+        {imagesCompressing && (
+          <p className="mt-3 text-sm text-gray-400" role="status">
+            Compressing photos for upload…
+          </p>
+        )}
+        {imagesBatchLabel ? (
+          <p className="mt-2 text-xs text-gray-500">{imagesBatchLabel}</p>
+        ) : null}
+        {imageError ? (
+          <p className="mt-2 text-sm text-red-400" role="alert">
+            {imageError}
+          </p>
+        ) : null}
 
         {imagePreviews.length > 0 && (
           <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 list-none">
@@ -338,11 +363,19 @@ export default function MediaTab({
                   <span className="pointer-events-none absolute left-1.5 top-1.5 rounded bg-black/60 p-0.5 text-gray-300">
                     <GripVertical className="h-3.5 w-3.5" />
                   </span>
+                  <span className="pointer-events-none absolute bottom-1.5 right-1.5 rounded bg-black/65 px-1.5 py-0.5 text-[10px] font-medium text-gray-200">
+                    {preview.sizeLabel}
+                  </span>
                 </button>
                 <div className="mt-2 flex items-start justify-between gap-2">
-                  <p className="text-xs text-gray-500 truncate min-w-0">
-                    {preview.name}
-                  </p>
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-500 truncate">
+                      {preview.name}
+                    </p>
+                    <p className="text-[11px] text-gray-500">
+                      {preview.sizeLabel} after compression
+                    </p>
+                  </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     {imagePreviews.length > 1 && (
                       <ReorderControls
@@ -429,7 +462,7 @@ export default function MediaTab({
         <DropZone
           id="listing-floor-plans"
           label="Drag and drop floor plans or browse files"
-          hint="JPG, JPEG, GIF, PNG or PDF · up to 10 · 10 MB each"
+          hint="JPG, PNG, GIF or PDF · max 10 MB each · counts toward the 50 MB save limit"
           accept="image/jpeg,image/png,image/gif,application/pdf"
           count={newFloorPlanFiles.length}
           inputKey={floorPlanInputKey}
@@ -449,7 +482,10 @@ export default function MediaTab({
                 key={preview.key}
                 className="flex items-center justify-between gap-3 rounded-lg border border-gray-700 px-4 py-3"
               >
-                <p className="text-sm text-gray-300 truncate">{preview.name}</p>
+                <div className="min-w-0">
+                  <p className="text-sm text-gray-300 truncate">{preview.name}</p>
+                  <p className="text-[11px] text-gray-500">{preview.sizeLabel}</p>
+                </div>
                 <button
                   type="button"
                   onClick={() => onRemoveNewFloorPlan(index)}

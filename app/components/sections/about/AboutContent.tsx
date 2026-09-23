@@ -12,7 +12,7 @@ export default function AboutContent() {
             <p className="flex-1 text-lg md:text-xl text-gray-300 leading-relaxed text-left">
               WaterStone Group, LLC is a real estate and investment management firm
               dedicated to helping landlords protect and grow their assets across New
-              York and Florida. We combine deep local market expertise with proactive
+              York, New Jersey, and Florida. We combine deep local market expertise with proactive
               management, giving property owners a reliable partner who cares for their
               buildings as if they were our own.
             </p>
@@ -53,10 +53,10 @@ export default function AboutContent() {
                 What we focus on
               </h2>
               <p className="text-base md:text-lg text-gray-300 leading-relaxed">
-                Our core expertise spans two of the nation&apos;s most active markets: New
-                York and Florida. We manage a diverse portfolio of multifamily buildings,
+                Our core expertise spans three of the nation&apos;s most active markets: New
+                York, New Jersey, and Florida. We manage a diverse portfolio of multifamily buildings,
                 mixed-use properties, commercial holdings, and condominium associations
-                across both regions. From daily building operations to strategic
+                across these regions. From daily building operations to strategic
                 acquisitions, our focus remains firmly on protecting property value and
                 supporting our owners&apos; long-term financial goals.
               </p>
@@ -97,6 +97,32 @@ export default function AboutContent() {
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 42vw"
               />
+            </div>
+          </div>
+        </AnimatedOnScroll>
+
+        {/* Equal Housing Opportunity */}
+        <AnimatedOnScroll>
+          <div className="flex flex-col sm:flex-row sm:items-start gap-6 md:gap-8 mb-10 md:mb-14 max-w-4xl rounded-lg border border-gray-700/80 bg-gray-800/30 px-5 py-6 sm:px-8 sm:py-8">
+            <Image
+              src="/eho-logo.png"
+              alt="Equal Housing Opportunity"
+              width={96}
+              height={96}
+              className="h-24 w-24 flex-shrink-0 self-center sm:self-start object-contain"
+            />
+            <div>
+              <h2 className="text-xl md:text-2xl font-semibold text-[var(--color-almost-white)] mb-3">
+                Equal Housing Opportunity
+              </h2>
+              <p className="text-base md:text-lg text-gray-300 leading-relaxed">
+                We are pledged to the letter and spirit of U.S. policy for the
+                achievement of equal housing opportunity throughout the Nation.
+                We encourage and support an affirmative advertising and marketing
+                program in which there are no barriers to obtaining housing
+                because of race, color, religion, sex, handicap, familial status,
+                or national origin.
+              </p>
             </div>
           </div>
         </AnimatedOnScroll>

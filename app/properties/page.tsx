@@ -5,7 +5,7 @@ import PropertiesGrid from '../components/sections/properties/PropertiesGrid';
 export const metadata: Metadata = {
   title: 'Properties | Waterstone - Property Management',
   description:
-    'A sample of the real estate properties we manage throughout New York City boroughs and Florida.',
+    'A sample of the real estate properties we manage throughout New York, New Jersey, and Florida.',
 };
 
 export default function PropertiesPage() {

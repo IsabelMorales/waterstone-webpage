@@ -61,8 +61,8 @@ export default function PropertiesGrid() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedOnScroll>
           <p className="text-base md:text-lg text-gray-300 leading-relaxed max-w-4xl mb-10 md:mb-14">
-            We manage real estate properties throughout New York City boroughs
-            and some in Florida. Many of these properties are bound to certain
+            We manage real estate properties throughout New York, New Jersey,
+            and Florida. Many of these properties are bound to certain
             restrictions which prevent us from displaying them. We handle each
             and every client with utmost sensitivity and efficient management in
             order to protect their interest and remain fully compliant with all

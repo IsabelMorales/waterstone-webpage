@@ -1,20 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import AnimatedOnScroll from '../../common/AnimatedOnScroll';
 import ListingCardHoverGallery from '../../common/ListingCardHoverGallery';
+import ListingSearchBar from '../../common/ListingSearchBar';
 import ListingTabs from '../../common/ListingTabs';
 import type { Listing, ListingCatalogOptions, ListingType } from '@/lib/types/listing';
 import {
   FALLBACK_LISTING_OPTIONS,
   listingTypeLabel,
 } from '@/lib/listing-options';
+import { matchesListingSearch } from '@/lib/listing-search';
 import { formatBedsBaths, formatPrice } from '@/lib/listings-format';
 
 interface ListingsGridProps {
   listings: Listing[];
   options?: ListingCatalogOptions;
+  initialQuery?: string;
 }
 
 function ListingCard({
@@ -78,10 +82,35 @@ function ListingCard({
 export default function ListingsGrid({
   listings,
   options = FALLBACK_LISTING_OPTIONS,
+  initialQuery = '',
 }: ListingsGridProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const typeIds = options.types.length
     ? options.types
     : FALLBACK_LISTING_OPTIONS.types;
+
+  const [query, setQuery] = useState(initialQuery);
+
+  const syncQueryToUrl = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams();
+      const trimmed = value.trim();
+      if (trimmed) params.set('q', trimmed);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router]
+  );
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
+
+  function handleQueryChange(value: string) {
+    setQuery(value);
+    syncQueryToUrl(value);
+  }
 
   const tabItems = useMemo(
     () =>
@@ -105,12 +134,20 @@ export default function ListingsGrid({
     activeTab;
 
   const filtered = useMemo(
-    () => listings.filter((listing) => listing.type === resolvedTab),
-    [listings, resolvedTab]
+    () =>
+      listings.filter(
+        (listing) =>
+          listing.type === resolvedTab &&
+          matchesListingSearch(listing, query)
+      ),
+    [listings, resolvedTab, query]
   );
 
-  const emptyCopy =
-    resolvedTab === 'rent'
+  const hasSearch = query.trim().length > 0;
+
+  const emptyCopy = hasSearch
+    ? 'No listings match your search'
+    : resolvedTab === 'rent'
       ? 'No rentals available right now'
       : resolvedTab === 'sale'
         ? 'No sales available right now'
@@ -123,8 +160,18 @@ export default function ListingsGrid({
           <p className="text-base md:text-lg text-gray-300 leading-relaxed max-w-3xl mb-8 md:mb-10">
             Explore our currently available listings below. Properties are
             managed by WaterStone Group and updated as units become available.
+            All listings are marketed in accordance with fair housing laws and
+            Equal Housing Opportunity principles.
           </p>
         </AnimatedOnScroll>
+
+        <div className="mb-8 md:mb-6">
+          <ListingSearchBar
+            value={query}
+            onChange={handleQueryChange}
+            id="public-listing-search"
+          />
+        </div>
 
         {tabItems.length > 0 && (
           <ListingTabs
@@ -138,7 +185,7 @@ export default function ListingsGrid({
 
         <AnimatedOnScroll>
           <div
-            key={resolvedTab}
+            key={`${resolvedTab}-${query.trim()}`}
             className="tab-panel-enter"
             role="tabpanel"
             aria-live="polite"
@@ -158,15 +205,31 @@ export default function ListingsGrid({
                         : emptyCopy}
                     </p>
                     <p className="mt-2 text-sm md:text-base text-gray-400 max-w-xl leading-relaxed">
-                      New options will appear here as units become available.
-                      Feel free to{' '}
-                      <Link
-                        href="/contact-us"
-                        className="text-brand-accent hover:underline"
-                      >
-                        contact us
-                      </Link>{' '}
-                      if you would like to hear about upcoming opportunities.
+                      {hasSearch ? (
+                        <>
+                          Try a different term, or{' '}
+                          <button
+                            type="button"
+                            onClick={() => handleQueryChange('')}
+                            className="text-brand-accent hover:underline"
+                          >
+                            clear the search
+                          </button>
+                          .
+                        </>
+                      ) : (
+                        <>
+                          New options will appear here as units become available.
+                          Feel free to{' '}
+                          <Link
+                            href="/contact-us"
+                            className="text-brand-accent hover:underline"
+                          >
+                            contact us
+                          </Link>{' '}
+                          if you would like to hear about upcoming opportunities.
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>

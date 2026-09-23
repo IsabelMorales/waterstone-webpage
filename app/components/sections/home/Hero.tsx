@@ -71,7 +71,7 @@ export default function Hero() {
               style={{ textShadow: '0 1px 3px rgba(0,0,0,0.45)' }}
             >
             See how your real estate, with the right management, can perform like you never knew it could. 
-            We help owners in New York and Florida protect value, stabilize cash flow, and get more from every asset.
+            We help owners in New York, New Jersey, and Florida protect value, stabilize cash flow, and get more from every asset.
             </p>
 
             {/* CTA Button */}

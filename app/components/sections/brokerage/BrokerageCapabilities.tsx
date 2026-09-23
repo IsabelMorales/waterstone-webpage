@@ -25,7 +25,7 @@ const capabilities: BrokerageCapability[] = [
   {
     title: 'Commercial & Residential Leasing',
     description:
-      'Connecting landlords with stable, high-caliber tenants while helping businesses find spaces that support their operational needs and growth plans.',
+      'Connecting landlords with stable, high-caliber tenants while helping businesses find spaces that support their operational needs and growth plans. Residential leasing is conducted in accordance with Equal Housing Opportunity principles.',
     Icon: KeyRound,
   },
   {

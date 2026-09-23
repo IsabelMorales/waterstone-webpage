@@ -8,11 +8,26 @@ import {
 } from '@/lib/api/waterstone';
 import { FALLBACK_LISTING_OPTIONS } from '@/lib/listing-options';
 import type { Listing, ListingCatalogOptions } from '@/lib/types/listing';
+import { DEFAULT_OG_IMAGE } from '@/lib/site-metadata';
+
+const listingsDescription =
+  'Browse current rental, sale, and commercial listings managed by WaterStone Group across New York, New Jersey, and Florida.';
 
 export const metadata: Metadata = {
   title: 'Listings | Waterstone - Property Management',
-  description:
-    'Browse current rental, sale, and commercial listings managed by WaterStone Group across New York City.',
+  description: listingsDescription,
+  openGraph: {
+    title: 'Listings | Waterstone - Property Management',
+    description: listingsDescription,
+    url: '/listings',
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Listings | Waterstone - Property Management',
+    description: listingsDescription,
+    images: [DEFAULT_OG_IMAGE.url],
+  },
 };
 
 export const dynamic = 'force-dynamic';
@@ -39,7 +54,15 @@ async function loadOptions(): Promise<ListingCatalogOptions> {
   }
 }
 
-export default async function ListingsPage() {
+export default async function ListingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const params = await searchParams;
+  const initialQuery =
+    typeof params.q === 'string' ? params.q : '';
+
   const [listings, options] = await Promise.all([
     loadAvailableListings(),
     loadOptions(),
@@ -48,7 +71,11 @@ export default async function ListingsPage() {
   return (
     <div className="min-h-screen bg-brand-dark">
       <ListingsHero />
-      <ListingsGrid listings={listings} options={options} />
+      <ListingsGrid
+        listings={listings}
+        options={options}
+        initialQuery={initialQuery}
+      />
     </div>
   );
 }

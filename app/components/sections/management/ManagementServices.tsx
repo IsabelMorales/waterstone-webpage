@@ -13,7 +13,7 @@ const coreServices: CoreService[] = [
   {
     title: 'Tenant Relations & Support',
     description:
-      'We manage all communications, requests, and lease coordination. By maintaining professional, responsive relationships, we increase tenant satisfaction and minimize turnover.',
+      'We manage all communications, requests, and lease coordination. By maintaining professional, responsive relationships—and treating every resident and applicant with equal housing opportunity in mind—we increase tenant satisfaction and minimize turnover.',
     Icon: MessagesSquare,
   },
   {

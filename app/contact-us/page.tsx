@@ -5,7 +5,7 @@ import ContactForm from '../components/sections/contact/ContactForm';
 export const metadata: Metadata = {
   title: 'Contact Us | Waterstone - Property Management',
   description:
-    'Get in touch with WaterStone Group for property management services in New York and Florida.',
+    'Get in touch with WaterStone Group for property management services in New York, New Jersey, and Florida.',
 };
 
 interface ContactUsPageProps {

@@ -77,7 +77,8 @@ const detailedServices: DetailedService[] = [
     Icon: UserCheck,
     items: [
       'Background checks for identity verification, credit history, rental history, income etc.',
-      'Classify tenant fitness based on pre-determined criteria',
+      'Classify tenant fitness based on pre-determined, lawful criteria applied consistently for all applicants',
+      'Screening and selection conducted in accordance with fair housing laws and Equal Housing Opportunity principles',
       'Notification to tenants who were rejected',
     ],
   },

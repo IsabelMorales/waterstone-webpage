@@ -7,7 +7,7 @@ import ManagementCta from '../components/sections/management/ManagementCta';
 export const metadata: Metadata = {
   title: 'WS Management | Waterstone - Property Management',
   description:
-    'Hassle-free property management with maximum investment value. Expert oversight for landlords in New York and Florida.',
+    'Hassle-free property management with maximum investment value. Expert oversight for landlords in New York, New Jersey, and Florida.',
 };
 
 export default function WaterstoneManagementPage() {

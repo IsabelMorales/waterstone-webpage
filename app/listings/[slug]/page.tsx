@@ -19,11 +19,35 @@ export async function generateMetadata({
   const { slug } = await params;
   try {
     const listing = await fetchListingBySlug(slug);
+    const description =
+      listing.description?.slice(0, 160) ||
+      `${listing.title} — ${listing.address}`;
+    const cover = listing.images?.find(Boolean) || null;
+    const title = `${listing.title} | Waterstone Listings`;
+
     return {
-      title: `${listing.title} | Waterstone Listings`,
-      description:
-        listing.description?.slice(0, 160) ||
-        `${listing.title} — ${listing.address}`,
+      title,
+      description,
+      openGraph: {
+        type: 'website',
+        title,
+        description,
+        url: `/listings/${listing.slug}`,
+        images: cover
+          ? [
+              {
+                url: cover,
+                alt: listing.title,
+              },
+            ]
+          : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: cover ? [cover] : undefined,
+      },
     };
   } catch {
     return {

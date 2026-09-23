@@ -1,0 +1,32 @@
+import Image from 'next/image';
+
+export default function ViewingHero() {
+  return (
+    <section className="relative w-full h-[100vh] min-h-[18rem] max-h-[28rem] overflow-hidden">
+      <div className="absolute inset-0 w-full h-full">
+        <Image
+          src="/hero-4.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover"
+          quality={85}
+        />
+      </div>
+      <div className="absolute inset-0 bg-[var(--color-almost-black)]/50" />
+      <div className="relative z-10 h-full flex items-center justify-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-light uppercase tracking-[0.12em] text-[var(--color-almost-white)] mb-4 leading-snug">
+            Schedule a Viewing
+          </h1>
+          <p
+            className="text-lg sm:text-xl md:text-2xl font-medium text-[var(--color-almost-white)] max-w-2xl mx-auto"
+            style={{ textShadow: '0 1px 3px rgba(0,0,0,0.45)' }}
+          >
+            Request a preferred time to see the property.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}

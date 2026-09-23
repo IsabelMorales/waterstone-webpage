@@ -1,9 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, useMemo, useRef, useState } from 'react';
 import type { Listing, ListingCatalogOptions } from '@/lib/types/listing';
 import { FALLBACK_LISTING_OPTIONS } from '@/lib/listing-options';
+import { compressListingImages } from '@/lib/compress-listing-image';
+import {
+  MAX_FLOOR_PLAN_BYTES,
+  MAX_FLOOR_PLANS_SOFT,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGES_SOFT,
+  MAX_UPLOAD_BATCH_BYTES,
+  formatFileSize,
+  sumFileSizes,
+} from '@/lib/listing-media-limits';
 import { cn } from '@/lib/utils';
 import ChevronLeft from '../../common/ChevronLeft';
 import {
@@ -36,12 +46,12 @@ function fileKey(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
-function mergeFiles(prev: File[], incoming: File[], max: number) {
+function mergeFiles(prev: File[], incoming: File[]): File[] {
   const map = new Map(prev.map((file) => [fileKey(file), file]));
   incoming.forEach((file) => {
     map.set(fileKey(file), file);
   });
-  return Array.from(map.values()).slice(0, max);
+  return Array.from(map.values());
 }
 
 function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
@@ -60,7 +70,30 @@ function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
   return next;
 }
 
-const FLOOR_PLAN_MAX_BYTES = 10 * 1024 * 1024;
+function describeSaveError(err: unknown, response?: Response): string {
+  if (response) {
+    if (response.status === 413) {
+      return `Upload is too large for the server (HTTP 413). Keep new files under ${formatFileSize(MAX_UPLOAD_BATCH_BYTES)} total per save.`;
+    }
+    if (response.status >= 500) {
+      return `Server error while saving (HTTP ${response.status}). If you added many photos, try a smaller batch under ${formatFileSize(MAX_UPLOAD_BATCH_BYTES)}.`;
+    }
+  }
+
+  if (err instanceof SyntaxError) {
+    return `The server returned an unexpected response. The upload may have exceeded the size limit (${formatFileSize(MAX_UPLOAD_BATCH_BYTES)} total for new files).`;
+  }
+
+  if (err instanceof TypeError) {
+    return `Network error while saving. Check your connection, or reduce the upload size (max ${formatFileSize(MAX_UPLOAD_BATCH_BYTES)} for new files per save).`;
+  }
+
+  if (err instanceof Error && err.message.trim()) {
+    return err.message;
+  }
+
+  return `Could not save the listing. If you uploaded media, keep new files under ${formatFileSize(MAX_UPLOAD_BATCH_BYTES)} total.`;
+}
 
 export default function ListingForm({
   mode,
@@ -78,6 +111,8 @@ export default function ListingForm({
   const [removeImages, setRemoveImages] = useState<string[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [imageInputKey, setImageInputKey] = useState(0);
+  const [imageError, setImageError] = useState('');
+  const [imagesCompressing, setImagesCompressing] = useState(false);
   const [existingFloorPlans] = useState<string[]>(listing?.floorPlans || []);
   const [removeFloorPlans, setRemoveFloorPlans] = useState<string[]>([]);
   const [newFloorPlanFiles, setNewFloorPlanFiles] = useState<File[]>([]);
@@ -89,6 +124,16 @@ export default function ListingForm({
   const tabIndex = LISTING_FORM_TABS.findIndex((tab) => tab.id === activeTab);
   const isFirstTab = tabIndex <= 0;
   const isLastTab = tabIndex >= LISTING_FORM_TABS.length - 1;
+
+  const mediaBatchBytes = useMemo(
+    () => sumFileSizes(newImageFiles) + sumFileSizes(newFloorPlanFiles),
+    [newImageFiles, newFloorPlanFiles]
+  );
+
+  const imagesBatchLabel =
+    newImageFiles.length || newFloorPlanFiles.length
+      ? `New media for this save: ${formatFileSize(mediaBatchBytes)} / ${formatFileSize(MAX_UPLOAD_BATCH_BYTES)}`
+      : '';
 
   function scrollToTitle() {
     titleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -126,9 +171,115 @@ export default function ListingForm({
     if (next) selectTab(next.id);
   }
 
+  function validateMediaBatch(
+    images: File[],
+    floorPlans: File[]
+  ): string | null {
+    const total = sumFileSizes(images) + sumFileSizes(floorPlans);
+    if (total > MAX_UPLOAD_BATCH_BYTES) {
+      return `New files total ${formatFileSize(total)}, but the limit per save is ${formatFileSize(MAX_UPLOAD_BATCH_BYTES)}. Remove some photos or floor plans.`;
+    }
+    if (images.length > MAX_IMAGES_SOFT) {
+      return `Too many new photos (${images.length}). Split into smaller saves (soft limit ${MAX_IMAGES_SOFT}).`;
+    }
+    if (floorPlans.length > MAX_FLOOR_PLANS_SOFT) {
+      return `Too many new floor plans (${floorPlans.length}). Soft limit is ${MAX_FLOOR_PLANS_SOFT} per save.`;
+    }
+    const oversizedImage = images.find((file) => file.size > MAX_IMAGE_BYTES);
+    if (oversizedImage) {
+      return `“${oversizedImage.name}” is ${formatFileSize(oversizedImage.size)} after compression (max ${formatFileSize(MAX_IMAGE_BYTES)} per photo).`;
+    }
+    const oversizedFloor = floorPlans.find(
+      (file) => file.size > MAX_FLOOR_PLAN_BYTES
+    );
+    if (oversizedFloor) {
+      return `“${oversizedFloor.name}” exceeds ${formatFileSize(MAX_FLOOR_PLAN_BYTES)}.`;
+    }
+    return null;
+  }
+
+  async function handleImageFilesChange(fileList: FileList | null) {
+    const incoming = Array.from(fileList || []);
+    if (!incoming.length) return;
+
+    setImagesCompressing(true);
+    setImageError('');
+    setError('');
+
+    try {
+      const compressed = await compressListingImages(incoming);
+      const stillTooLarge = compressed.filter(
+        (file) => file.size > MAX_IMAGE_BYTES
+      );
+      const accepted = compressed.filter((file) => file.size <= MAX_IMAGE_BYTES);
+
+      if (stillTooLarge.length) {
+        const names = stillTooLarge.map((file) => file.name).join(', ');
+        setImageError(
+          stillTooLarge.length === 1
+            ? `“${names}” is still over ${formatFileSize(MAX_IMAGE_BYTES)} after compression and was not added.`
+            : `These files stayed over ${formatFileSize(MAX_IMAGE_BYTES)} after compression and were not added: ${names}`
+        );
+      }
+
+      if (!accepted.length) {
+        setImageInputKey((key) => key + 1);
+        return;
+      }
+
+      setNewImageFiles((prev) => {
+        const merged = mergeFiles(prev, accepted);
+        const batchError = validateMediaBatch(merged, newFloorPlanFiles);
+        if (batchError) {
+          const room =
+            MAX_UPLOAD_BATCH_BYTES -
+            sumFileSizes(prev) -
+            sumFileSizes(newFloorPlanFiles);
+          if (room <= 0) {
+            setImageError(batchError);
+            return prev;
+          }
+          const fitting: File[] = [];
+          let used = 0;
+          for (const file of accepted) {
+            if (prev.some((p) => fileKey(p) === fileKey(file))) continue;
+            if (used + file.size > room) continue;
+            fitting.push(file);
+            used += file.size;
+          }
+          if (!fitting.length) {
+            setImageError(batchError);
+            return prev;
+          }
+          setImageError(
+            `Some photos were skipped to stay under ${formatFileSize(MAX_UPLOAD_BATCH_BYTES)} for this save.`
+          );
+          return mergeFiles(prev, fitting);
+        }
+        return merged;
+      });
+    } catch {
+      setImageError(
+        'Could not process one or more photos. Try different files or fewer images.'
+      );
+    } finally {
+      setImagesCompressing(false);
+      setImageInputKey((key) => key + 1);
+    }
+  }
+
   async function persistListing() {
     setLoading(true);
     setError('');
+
+    const mediaError = validateMediaBatch(newImageFiles, newFloorPlanFiles);
+    if (mediaError) {
+      setError(mediaError);
+      setImageError(mediaError);
+      setLoading(false);
+      selectTab('media');
+      return;
+    }
 
     try {
       const payload = buildWritePayload(fields, options);
@@ -196,10 +347,23 @@ export default function ListingForm({
         );
       }
 
-      const data = (await response.json()) as { message?: string };
+      let data: { message?: string } = {};
+      try {
+        data = (await response.json()) as { message?: string };
+      } catch (parseErr) {
+        setError(describeSaveError(parseErr, response));
+        setLoading(false);
+        return;
+      }
 
       if (!response.ok) {
-        setError(data.message || 'Save failed.');
+        setError(
+          data.message ||
+            describeSaveError(
+              new Error(`Save failed (HTTP ${response.status})`),
+              response
+            )
+        );
         setLoading(false);
         return;
       }
@@ -209,23 +373,20 @@ export default function ListingForm({
           ? `/admin/listings/${listing.id}`
           : '/admin/listings'
       );
-    } catch {
-      setError('Unable to save listing. Please try again.');
+    } catch (err) {
+      setError(describeSaveError(err));
       setLoading(false);
     }
   }
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // Enter in inputs must never persist. Advance tabs until the last one.
     if (!isLastTab) {
       goTab(1);
     }
   }
 
   function handleNextClick() {
-    // Defer tab change so this click cannot land on the Save button that
-    // replaces Next in the same spot after re-render.
     window.setTimeout(() => goTab(1), 0);
   }
 
@@ -261,7 +422,7 @@ export default function ListingForm({
 
         <button
           type="button"
-          disabled={loading}
+          disabled={loading || imagesCompressing}
           onClick={() => void persistListing()}
           className={cn(adminPrimaryBtnClassName, 'py-2.5 px-5 text-sm')}
         >
@@ -277,11 +438,7 @@ export default function ListingForm({
           className="mb-8 -mx-1"
         />
 
-        <form
-          onSubmit={handleFormSubmit}
-          className="space-y-8"
-          noValidate
-        >
+        <form onSubmit={handleFormSubmit} className="space-y-8" noValidate>
           {activeTab === 'basics' && (
             <BasicsTab
               fields={fields}
@@ -333,21 +490,22 @@ export default function ListingForm({
               }
               newImageFiles={newImageFiles}
               onImageFilesChange={(fileList) => {
-                const incoming = Array.from(fileList || []);
-                if (!incoming.length) return;
-                setNewImageFiles((prev) => mergeFiles(prev, incoming, 10));
-                setImageInputKey((key) => key + 1);
+                void handleImageFilesChange(fileList);
               }}
               onRemoveNewImage={(index) => {
                 setNewImageFiles((prev) =>
                   prev.filter((_, i) => i !== index)
                 );
+                setImageError('');
                 setImageInputKey((key) => key + 1);
               }}
               onMoveNewImage={(from, to) =>
                 setNewImageFiles((prev) => moveItem(prev, from, to))
               }
               imageInputKey={imageInputKey}
+              imageError={imageError}
+              imagesCompressing={imagesCompressing}
+              imagesBatchLabel={imagesBatchLabel}
               existingFloorPlans={existingFloorPlans}
               removeFloorPlans={removeFloorPlans}
               onToggleRemoveFloorPlan={(url) =>
@@ -363,27 +521,60 @@ export default function ListingForm({
                 if (!incoming.length) return;
 
                 const tooLarge = incoming.filter(
-                  (file) => file.size > FLOOR_PLAN_MAX_BYTES
+                  (file) => file.size > MAX_FLOOR_PLAN_BYTES
                 );
                 const accepted = incoming.filter(
-                  (file) => file.size <= FLOOR_PLAN_MAX_BYTES
+                  (file) => file.size <= MAX_FLOOR_PLAN_BYTES
                 );
 
                 if (tooLarge.length) {
                   const names = tooLarge.map((file) => file.name).join(', ');
                   setFloorPlanError(
                     tooLarge.length === 1
-                      ? `“${names}” exceeds 10 MB. Choose a smaller floor plan.`
-                      : `These files exceed 10 MB and were not added: ${names}`
+                      ? `“${names}” exceeds ${formatFileSize(MAX_FLOOR_PLAN_BYTES)}. Choose a smaller floor plan.`
+                      : `These files exceed ${formatFileSize(MAX_FLOOR_PLAN_BYTES)} and were not added: ${names}`
                   );
                 } else {
                   setFloorPlanError('');
                 }
 
                 if (accepted.length) {
-                  setNewFloorPlanFiles((prev) =>
-                    mergeFiles(prev, accepted, 10)
-                  );
+                  setNewFloorPlanFiles((prev) => {
+                    const merged = mergeFiles(prev, accepted);
+                    const batchError = validateMediaBatch(
+                      newImageFiles,
+                      merged
+                    );
+                    if (batchError) {
+                      const room =
+                        MAX_UPLOAD_BATCH_BYTES -
+                        sumFileSizes(newImageFiles) -
+                        sumFileSizes(prev);
+                      if (room <= 0) {
+                        setFloorPlanError(batchError);
+                        return prev;
+                      }
+                      const fitting: File[] = [];
+                      let used = 0;
+                      for (const file of accepted) {
+                        if (prev.some((p) => fileKey(p) === fileKey(file))) {
+                          continue;
+                        }
+                        if (used + file.size > room) continue;
+                        fitting.push(file);
+                        used += file.size;
+                      }
+                      if (!fitting.length) {
+                        setFloorPlanError(batchError);
+                        return prev;
+                      }
+                      setFloorPlanError(
+                        `Some floor plans were skipped to stay under ${formatFileSize(MAX_UPLOAD_BATCH_BYTES)} for this save.`
+                      );
+                      return mergeFiles(prev, fitting);
+                    }
+                    return merged.slice(0, MAX_FLOOR_PLANS_SOFT);
+                  });
                 }
                 setFloorPlanInputKey((key) => key + 1);
               }}
@@ -432,7 +623,7 @@ export default function ListingForm({
               <button
                 key="listing-save"
                 type="button"
-                disabled={loading}
+                disabled={loading || imagesCompressing}
                 onClick={() => void persistListing()}
                 className={adminPrimaryBtnClassName}
               >

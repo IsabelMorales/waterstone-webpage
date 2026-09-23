@@ -50,7 +50,7 @@ const responsibilities: Responsibility[] = [
     number: 5,
     title: 'Tenant Screening',
     description:
-      'Our vetting process goes beyond standard. We focus on securing residents who meet your property’s specific financial standards and contribute to a stable, respectful community environment.',
+      'Our vetting process goes beyond standard. We focus on securing residents who meet your property’s specific financial standards and contribute to a stable, respectful community environment—while applying consistent, lawful criteria that support equal housing opportunity for all applicants.',
     Icon: UserCheck,
   },
   {

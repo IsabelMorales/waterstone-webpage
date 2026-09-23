@@ -25,7 +25,7 @@ export default function Footer() {
   return (
     <footer className="w-full bg-brand-dark text-[var(--color-almost-white)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-4">
           {/* Logo and Description */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4" aria-label="Home">
@@ -114,10 +114,25 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Equal Housing Opportunity — above copyright divider */}
+        <div className="mb-8 md:mb-6 flex items-center gap-3 sm:gap-4">
+          <Image
+            src="/eho-logo.png"
+            alt="Equal Housing Opportunity"
+            width={48}
+            height={48}
+            className="h-10 w-10 flex-shrink-0 object-contain"
+          />
+          <p className="min-w-0 flex-1 text-gray-400 text-sm leading-relaxed">
+            We support Equal Housing Opportunity. Housing is offered without
+            regard to race, color, religion, sex, handicap, familial status, or
+            national origin.
+          </p>
+        </div>
+
         {/* Bottom Section */}
-          <div className="border-t border-[var(--color-almost-white)]/20 pt-8">
+        <div className="border-t border-[var(--color-almost-white)]/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            {/* Copyright */}
             <p className="text-gray-400 text-base text-center md:text-left">
               © {currentYear} Waterstone. All rights reserved.
             </p>

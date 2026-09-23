@@ -18,7 +18,9 @@ import { formatBedsBaths, formatPrice } from '@/lib/listings-format';
 import { cn } from '@/lib/utils';
 import ListingBadges from '../../common/ListingBadges';
 import ListingCardHoverGallery from '../../common/ListingCardHoverGallery';
+import ListingSearchBar from '../../common/ListingSearchBar';
 import ListingTabs from '../../common/ListingTabs';
+import { matchesListingSearch } from '@/lib/listing-search';
 import { adminPrimaryBtnClassName } from './admin-ui';
 
 interface AdminListingsTableProps {
@@ -142,20 +144,25 @@ export default function AdminListingsTable({
 
   const [listings, setListings] = useState(initialListings);
   const [activeTab, setActiveTab] = useState<ListingType | 'all'>('all');
+  const [query, setQuery] = useState('');
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [savingOrder, setSavingOrder] = useState(false);
   const [orderMessage, setOrderMessage] = useState('');
   const [orderError, setOrderError] = useState('');
   const didDragRef = useRef(false);
 
-  const canReorder = activeTab === 'all' && listings.length > 1;
+  const hasSearch = query.trim().length > 0;
+  const canReorder =
+    activeTab === 'all' && !hasSearch && listings.length > 1;
 
   const filtered = useMemo(
     () =>
-      activeTab === 'all'
-        ? listings
-        : listings.filter((listing) => listing.type === activeTab),
-    [listings, activeTab]
+      listings.filter((listing) => {
+        const matchesTab =
+          activeTab === 'all' || listing.type === activeTab;
+        return matchesTab && matchesListingSearch(listing, query);
+      }),
+    [listings, activeTab, query]
   );
 
   const tabItems = useMemo(
@@ -265,6 +272,11 @@ export default function AdminListingsTable({
                 {savingOrder ? ' · saving…' : ''}.
               </p>
             )}
+            {hasSearch && activeTab === 'all' && (
+              <p className="mt-1 text-xs text-gray-500">
+                Clear search to reorder the catalog.
+              </p>
+            )}
           </div>
         </div>
         <Link href="/admin/listings/new" className={adminPrimaryBtnClassName}>
@@ -283,6 +295,13 @@ export default function AdminListingsTable({
           {orderError || orderMessage}
         </p>
       )}
+
+      <ListingSearchBar
+        value={query}
+        onChange={setQuery}
+        id="admin-listing-search"
+        className="max-w-xl"
+      />
 
       <ListingTabs
         tabs={tabItems}
@@ -308,13 +327,17 @@ export default function AdminListingsTable({
         </div>
       ) : (
         <div
-          key={activeTab}
+          key={`${activeTab}-${query.trim()}`}
           className="tab-panel-enter"
           role="tabpanel"
           aria-live="polite"
         >
           {!filtered.length ? (
-            <p className="text-gray-400 text-sm">No listings in this tab.</p>
+            <p className="text-gray-400 text-sm">
+              {hasSearch
+                ? 'No listings match your search.'
+                : 'No listings in this tab.'}
+            </p>
           ) : (
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 list-none">
               {filtered.map((listing, index) => {

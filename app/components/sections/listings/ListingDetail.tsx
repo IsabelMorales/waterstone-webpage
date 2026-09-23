@@ -212,12 +212,14 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
 
             <div className="mt-8">
               <Link
-                href={`/contact-us?${new URLSearchParams({
+                href={`/schedule-viewing?${new URLSearchParams({
                   title: listing.title,
+                  address: listing.address,
+                  slug: listing.slug,
                 }).toString()}`}
                 className="inline-flex items-center justify-center px-6 py-3 bg-brand-primary text-[var(--color-almost-white)] font-semibold rounded-lg hover:bg-brand-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
               >
-                Inquire about this listing
+                Schedule a viewing
               </Link>
             </div>
           </div>
