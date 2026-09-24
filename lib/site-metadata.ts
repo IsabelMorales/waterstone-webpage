@@ -10,7 +10,7 @@ export function getSiteUrl(): string {
 }
 
 export const DEFAULT_OG_IMAGE = {
-  url: '/hero-4.jpg',
+  url: '/preview.jpg',
   width: 1200,
   height: 630,
   alt: 'WaterStone Group — property management in New York, New Jersey, and Florida',
