@@ -5,12 +5,13 @@ export default function ConsultingHero() {
     <section className="relative w-full h-[100vh] min-h-[18rem] max-h-[28rem] overflow-hidden">
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/hero-4.jpg"
+          src="/hero-4.webp"
           alt=""
           fill
           priority
           className="object-cover"
-          quality={85}
+          quality={70}
+          sizes="100vw"
         />
       </div>
       <div className="absolute inset-0 bg-[var(--color-almost-black)]/50" />

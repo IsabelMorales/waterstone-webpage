@@ -1,80 +1,112 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 const HERO_IMAGES = [
-  { src: "/hero-1.webp", alt: "Waterstone Hero First" },
-  { src: "/hero-2.jpg", alt: "Waterstone Hero Second" },
-  { src: "/hero-3.jpg", alt: "Waterstone Hero Third" },
-  { src: "/hero-4.jpg", alt: "Waterstone Hero Fourth" },
+  { src: '/hero-1.webp', alt: 'Waterstone Hero First' },
+  { src: '/hero-2.webp', alt: 'Waterstone Hero Second' },
+  { src: '/hero-3.webp', alt: 'Waterstone Hero Third' },
+  { src: '/hero-4.webp', alt: 'Waterstone Hero Fourth' },
 ] as const;
 
-const ROTATION_INTERVAL_MS = 3000;
+/** Delay carousel until after first paint / LCP window. */
+const CAROUSEL_START_DELAY_MS = 4000;
+const ROTATION_INTERVAL_MS = 4500;
 const TRANSITION_DURATION_MS = 800;
+
+/** Full-bleed hero: serve smaller files on phones. */
+const HERO_SIZES = '100vw';
+const HERO_QUALITY = 70;
 
 export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [carouselReady, setCarouselReady] = useState(false);
+  /** Only mount slides that are (or were) needed — keeps LCP light. */
+  const [mounted, setMounted] = useState<Set<number>>(() => new Set([0]));
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, ROTATION_INTERVAL_MS);
-    return () => clearInterval(interval);
+    const startId = window.setTimeout(() => {
+      setCarouselReady(true);
+      setMounted((prev) => new Set(prev).add(1));
+    }, CAROUSEL_START_DELAY_MS);
+
+    return () => window.clearTimeout(startId);
   }, []);
+
+  useEffect(() => {
+    if (!carouselReady) return;
+
+    const interval = window.setInterval(() => {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % HERO_IMAGES.length;
+        setMounted((seen) => {
+          const updated = new Set(seen);
+          updated.add(next);
+          updated.add((next + 1) % HERO_IMAGES.length);
+          return updated;
+        });
+        return next;
+      });
+    }, ROTATION_INTERVAL_MS);
+
+    return () => window.clearInterval(interval);
+  }, [carouselReady]);
 
   return (
     <section className="relative w-full h-[90vh] min-h-[37.5rem] max-h-[50rem] overflow-hidden">
-      {/* Background Images - Carrusel con transición */}
-      <div className="absolute inset-0 w-full h-full">
-        {HERO_IMAGES.map((img, index) => (
-          <div
-            key={img.src}
-            className="absolute inset-0 w-full h-full transition-opacity ease-in-out"
-            style={{
-              opacity: index === currentIndex ? 1 : 0,
-              transitionDuration: `${TRANSITION_DURATION_MS}ms`,
-            }}
-            aria-hidden={index !== currentIndex}
-          >
-            <Image
-              src={img.src}
-              alt={img.alt}
-              fill
-              priority={index === 0}
-              loading={index === 0 ? undefined : "lazy"}
-              className="object-cover"
-              quality={90}
-            />
-          </div>
-        ))}
+      <div className="absolute inset-0 w-full h-full bg-gray-900">
+        {HERO_IMAGES.map((img, index) => {
+          if (!mounted.has(index)) return null;
+          const isActive = index === currentIndex;
+          return (
+            <div
+              key={img.src}
+              className="absolute inset-0 w-full h-full transition-opacity ease-in-out"
+              style={{
+                opacity: isActive ? 1 : 0,
+                transitionDuration: `${TRANSITION_DURATION_MS}ms`,
+              }}
+              aria-hidden={!isActive}
+            >
+              <Image
+                src={img.src}
+                alt={img.alt}
+                fill
+                priority={index === 0}
+                loading={index === 0 ? undefined : 'lazy'}
+                fetchPriority={index === 0 ? 'high' : 'low'}
+                sizes={HERO_SIZES}
+                quality={HERO_QUALITY}
+                className="object-cover"
+              />
+            </div>
+          );
+        })}
       </div>
 
-      {/* Dark Overlay with Brand Color */}
       <div className="absolute inset-0 bg-[var(--color-almost-black)]/50" />
 
-      {/* Content */}
       <div className="relative z-10 h-full flex items-center justify-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Main Heading */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-light uppercase tracking-[0.12em] text-[var(--color-almost-white)] mb-6 leading-snug">
               Real Estate
               <br />
               Realized Opportunities
             </h1>
 
-            {/* Description */}
             <p
               className="text-lg sm:text-xl md:text-2xl font-medium text-[var(--color-almost-white)] mb-8 max-w-3xl mx-auto leading-relaxed"
               style={{ textShadow: '0 1px 3px rgba(0,0,0,0.45)' }}
             >
-            See how your real estate, with the right management, can perform like you never knew it could. 
-            We help owners in New York, New Jersey, and Florida protect value, stabilize cash flow, and get more from every asset.
+              See how your real estate, with the right management, can perform
+              like you never knew it could. We help owners in New York, New
+              Jersey, and Florida protect value, stabilize cash flow, and get
+              more from every asset.
             </p>
 
-            {/* CTA Button */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/contact-us"
