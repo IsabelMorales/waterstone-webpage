@@ -11,9 +11,9 @@ const HERO_IMAGES = [
   { src: '/hero-4.webp', alt: 'Waterstone Hero Fourth' },
 ] as const;
 
-/** Delay carousel until after first paint / LCP window. */
-const CAROUSEL_START_DELAY_MS = 4000;
-const ROTATION_INTERVAL_MS = 4500;
+/** Start rotating soon after first paint; keep later slides deferred. */
+const CAROUSEL_START_DELAY_MS = 800;
+const ROTATION_INTERVAL_MS = 3000;
 const TRANSITION_DURATION_MS = 800;
 
 /** Full-bleed hero: serve smaller files on phones. */
