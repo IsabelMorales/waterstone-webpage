@@ -114,7 +114,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Equal Housing Opportunity — above copyright divider */}
+        {/* Equal Housing Opportunity */}
         <div className="mb-8 md:mb-6 flex items-center gap-3 sm:gap-4">
           <Image
             src="/eho-logo.png"

@@ -101,32 +101,6 @@ export default function AboutContent() {
           </div>
         </AnimatedOnScroll>
 
-        {/* Equal Housing Opportunity */}
-        <AnimatedOnScroll>
-          <div className="flex flex-col sm:flex-row sm:items-start gap-6 md:gap-8 mb-10 md:mb-14 max-w-4xl rounded-lg border border-gray-700/80 bg-gray-800/30 px-5 py-6 sm:px-8 sm:py-8">
-            <Image
-              src="/eho-logo.png"
-              alt="Equal Housing Opportunity"
-              width={96}
-              height={96}
-              className="h-24 w-24 flex-shrink-0 self-center sm:self-start object-contain"
-            />
-            <div>
-              <h2 className="text-xl md:text-2xl font-semibold text-[var(--color-almost-white)] mb-3">
-                Equal Housing Opportunity
-              </h2>
-              <p className="text-base md:text-lg text-gray-300 leading-relaxed">
-                We are pledged to the letter and spirit of U.S. policy for the
-                achievement of equal housing opportunity throughout the Nation.
-                We encourage and support an affirmative advertising and marketing
-                program in which there are no barriers to obtaining housing
-                because of race, color, religion, sex, handicap, familial status,
-                or national origin.
-              </p>
-            </div>
-          </div>
-        </AnimatedOnScroll>
-
         {/* Closing + CTA */}
         <AnimatedOnScroll>
           <div className="max-w-3xl mx-auto text-center border-t border-gray-800 pt-10 md:pt-12">
