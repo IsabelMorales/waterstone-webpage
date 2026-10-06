@@ -124,9 +124,7 @@ export default function Footer() {
             className="h-10 w-10 flex-shrink-0 object-contain"
           />
           <p className="min-w-0 flex-1 text-gray-400 text-sm leading-relaxed">
-            We support Equal Housing Opportunity. Housing is offered without
-            regard to race, color, religion, sex, handicap, familial status, or
-            national origin.
+            Equal Housing Opportunity.
           </p>
         </div>
 
